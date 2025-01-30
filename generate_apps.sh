@@ -42,7 +42,8 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     --base-image debian:bullseye-slim \
     --fsl version=${fsl_version} \
     --yes \
-    --run "curl --output https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686 /usr/bin/ttyd" \
+    --run "curl -L --output https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686 /usr/bin/ttyd" \
+    --run "chmod +x /usr/bin/ttyd" \
   > bc_fsl/fsl_"${fsl_version}"."${CONTAINER_FILE}"
   if [ "${CONTAINER}" = "docker" ]; then
     # TODO: Build and publish Docker env
