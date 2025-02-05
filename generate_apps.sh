@@ -52,7 +52,7 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
     --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
     --run "apt -y purge pm-utils *screensaver*" \
-    --copy fsl_template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
+    --copy bc_fsl/build/src/vnc_startup.sh /opt/vnc_startup.sh \
   > bc_fsl/fsl_"${fsl_version}"."${CONTAINER_FILE}"
   if [ "${CONTAINER}" = "docker" ]; then
     # TODO: Build and publish Docker env

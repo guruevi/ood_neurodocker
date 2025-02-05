@@ -12,4 +12,4 @@ SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/vnc_startup.sh
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/fsl/fsl_<%= context.app_version %>.sif /opt/vnc_startup.sh
