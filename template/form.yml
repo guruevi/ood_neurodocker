@@ -3,8 +3,25 @@ title: "${app}"
 cluster: "general"
 attributes:
   bc_account: "${app}"
-  bc_num_slots: 4
   bc_queue: "general"
+  cores:
+    widget: "number_field"
+    max: 8
+    min: 1
+    step: 1
+    value: 2
+    label: "Number of cores"
+    help: "Enter a value between 1 and 8"
+  gpu:
+    required: true
+    widget: "select"
+    label: "GPU Type:"
+    value: 0
+    help: |
+      Select a GPU type (if necessary).
+    options:
+      - [ "None", 0 ]
+      - [ "L40S - 6GB VRAM", 6 ]
   app_version:
     required: true
     widget: "select"
@@ -14,8 +31,9 @@ attributes:
     options:
 form:
   - app_version
+  - cores
+  - gpu
   - bc_account
   - bc_num_hours
-  - bc_num_slots
   - bc_queue
   - bc_email_on_started

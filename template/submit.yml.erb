@@ -1,11 +1,40 @@
+<%-
+
+  cores_lookup = {
+      "any" => {"general" => 8},
+      "gpu" => {"general" => 8},
+  }
+
+  # GPU type
+  gpu_vram = gpu.blank? ? 0 : gpu.to_i
+  node_type = gpu_vram > 0 ? "gpu" : "any"
+
+  max_cores = cores_lookup[node_type][cluster]
+  num_cores = cores.blank? ? 0 : cores.to_i
+  if num_cores > max_cores
+    num_cores = max_cores
+  end
+
+  memory = num_cores * 1024
+  slurm_args = []
+  if gpu_vram > 0
+    # You need to have at least the amount of VRAM accessible in RAM
+    memory = memory < (gpu_vram + 1) * 1024 ? (gpu_vram + 1) * 1024 : memory
+    slurm_args = %w[--gres gpu:1]
+  end
+%>
 ---
-script:
-  native:
-    - "--cpus-per-task"
-    - "<%= bc_num_slots.to_i %>"
-    - "--mem"
-    - "<%= bc_num_slots.to_i * 1024 %>"
-    - "--nodes"
-    - "1"
 batch_connect:
   template: "basic"
+script:
+  queue_name: "general"
+  native:
+    - "--cpus-per-task"
+    - "<%= num_cores %>"
+    - "--mem"
+    - "<%= memory %>"
+    - "--nodes"
+    - "1"
+  <%- slurm_args.each do |arg| %>
+    - "<%= arg %>"
+  <%- end %>

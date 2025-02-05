@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 CONTAINER="singularity"
 CONTAINER_REPOS="/opt/ood_apps/images"
-APPS="afni ants bids_validator cat12 convert3d dcm2niix freesurfer fsl jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc"
+APPS="afni ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc"
 
 set_title() {
   yq -i '.title = "'"${2}"'"' bc_"$1"/form.yml
@@ -34,7 +34,8 @@ done
 FSL_VERSIONS=('6.0.6.1' '6.0.5.1' '5.0.10' '5.0.11' '6.0.0' '6.0.2' '6.0.1' '6.0.6.2' '6.0.3' '6.0.4' '5.0.8' '6.0.5.2' '6.0.7.4' '6.0.6' '5.0.9' '6.0.5' '6.0.6.4' '6.0.7.1' '6.0.6.3')
 FSL_VERSIONS=($(printf "%s\n" "${FSL_VERSIONS[@]}" | sort -rV))
 
-set_title "fsl" "FSL (FMRIB Software Library)"
+set_title "fsl" "FSL (Terminal)"
+set_title "fsl_gui" "FSL (GUI)"
 for fsl_version in "${FSL_VERSIONS[@]}"; do
   echo "Building fsl_${fsl_version}"
   neurodocker generate ${CONTAINER} \
@@ -42,8 +43,16 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     --base-image debian:bullseye-slim \
     --fsl version=${fsl_version} \
     --yes \
+    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
     --run "curl -L --output https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686 /usr/bin/ttyd" \
     --run "chmod +x /usr/bin/ttyd" \
+    --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
+    --run "mkdir -p /opt/novnc/utils/websockify" \
+    --run "wget -qO- https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
+    --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
+    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
+    --run "apt -y purge pm-utils *screensaver*" \
+    --copy fsl_template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
   > bc_fsl/fsl_"${fsl_version}"."${CONTAINER_FILE}"
   if [ "${CONTAINER}" = "docker" ]; then
     # TODO: Build and publish Docker env
@@ -53,4 +62,5 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     echo "Done building Singularity container"
   fi
   yq -i '.attributes.app_version.options += [[ "'"${fsl_version}"'", "'"${fsl_version}"'"]]' bc_fsl/form.yml
+  yq -i '.attributes.app_version.options += [[ "'"${fsl_version}"'", "'"${fsl_version}"'"]]' bc_fsl_gui/form.yml
 done
