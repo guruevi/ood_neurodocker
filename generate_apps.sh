@@ -58,8 +58,13 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     # TODO: Build and publish Docker env
     echo "Docker not supported"
   elif [ "${CONTAINER}" = "singularity" ]; then
-    singularity build ${CONTAINER_REPOS}/fsl/fsl_"${fsl_version}".sif bc_fsl/fsl_"${fsl_version}".def
-    echo "Done building Singularity container"
+    # Make sure we don't overwrite the container
+    if [ -f "${CONTAINER_REPOS}/fsl/fsl_"${fsl_version}".sif" ]; then
+      echo "Singularity container already exists, skipping"
+    else
+      singularity build ${CONTAINER_REPOS}/fsl/fsl_"${fsl_version}".sif bc_fsl/fsl_"${fsl_version}".def
+      echo "Done building Singularity container"
+    fi
   fi
   yq -i '.attributes.app_version.options += [[ "'"${fsl_version}"'", "'"${fsl_version}"'"]]' bc_fsl/form.yml
   yq -i '.attributes.app_version.options += [[ "'"${fsl_version}"'", "'"${fsl_version}"'"]]' bc_fsl_gui/form.yml
