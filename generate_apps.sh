@@ -44,11 +44,11 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     --fsl version=${fsl_version} \
     --yes \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
-    --run "curl -L --output https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686 /usr/bin/ttyd" \
+    --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
     --run "mkdir -p /opt/novnc/utils/websockify" \
-    --run "wget -qO- https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
+    --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
     --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
     --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
     --run "apt -y purge pm-utils *screensaver*" \
