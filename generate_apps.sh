@@ -70,7 +70,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         libnode-dev libudunits2-dev       \
     --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
     --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -bindir /usr/local/AFNIbin -do_extras" \
-    --run "export PATH=/usr/local/AFNIbin:$PATH /usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
+    --run "PATH=/usr/local/AFNIbin:$PATH /usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
