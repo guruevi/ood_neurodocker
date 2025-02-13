@@ -36,7 +36,9 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
     --base-image ubuntu:24.04 \
-    --run "add-apt-repository universe"
+    --env DEBIAN_FRONTEND=noninteractive \
+    --env TZ=America/New_York \
+    --env R_LIBS /opt/R \
     --install           tcsh xfonts-base libssl-dev       \
                         python-is-python3                 \
                         python3-matplotlib python3-numpy  \
@@ -61,9 +63,14 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         pulseaudio                        \
                         tigervnc-standalone-server        \
                         libnss-wrapper gettext            \
-    --run "curl -sL https://raw.githubusercontent.com/afni/afni/master/src/other_builds/OS_notes.linux_ubuntu_24_64_a_admin.txt | bash" \
-    --run "curl -sL https://raw.githubusercontent.com/afni/afni/master/src/other_builds/OS_notes.linux_ubuntu_24_64_b_user.tcsh | tcsh" \
-    --run "curl -sL https://raw.githubusercontent.com/afni/afni/master/src/other_builds/OS_notes.linux_ubuntu_24_64_c_nice.tcsh | tcsh" \
+                        libgdal-dev libopenblas-dev       \
+                        libnode-dev libudunits2-dev       \
+    --run "mv /usr/include/GLGLwDrawA.h /usr/include/GLGLwDrawA.h.orig" \
+    --run "sed 's/GLAPI WidgetClass/extern GLAPI WidgetClass/' /usr/include/GLwDrawA.h.orig > /tmp/GLwDrawA.h" \
+    --run "mv /tmp/GLwDrawA.h GLwDrawA.h" \
+    --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
+    --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -do_extras" \
+    --run "rPkgsInstall -pkgs ALL" \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
@@ -82,7 +89,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
     if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
       echo "Singularity container already exists, skipping"
     else
-      singularity build ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
+      singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
       echo "Done building Singularity container"
     fi
   fi
