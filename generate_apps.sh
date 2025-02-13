@@ -36,9 +36,9 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
     --base-image ubuntu:24.04 \
-    --env DEBIAN_FRONTEND=noninteractive \
     --env TZ=America/New_York \
     --env R_LIBS /opt/R \
+    --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
     --install           tcsh xfonts-base libssl-dev       \
                         python-is-python3                 \
                         python3-matplotlib python3-numpy  \
@@ -65,12 +65,9 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         libnss-wrapper gettext            \
                         libgdal-dev libopenblas-dev       \
                         libnode-dev libudunits2-dev       \
-    --run "mv /usr/include/GLGLwDrawA.h /usr/include/GLGLwDrawA.h.orig" \
-    --run "sed 's/GLAPI WidgetClass/extern GLAPI WidgetClass/' /usr/include/GLwDrawA.h.orig > /tmp/GLwDrawA.h" \
-    --run "mv /tmp/GLwDrawA.h GLwDrawA.h" \
     --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
-    --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -do_extras" \
-    --run "rPkgsInstall -pkgs ALL" \
+    --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -bindir /usr/local/AFNIbin -do_extras" \
+    --run "/usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
