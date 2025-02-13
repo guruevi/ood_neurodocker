@@ -99,15 +99,15 @@ done
 ########################################################################################################################
 FSL_VERSIONS=('6.0.6.1' '6.0.5.1' '5.0.10' '5.0.11' '6.0.0' '6.0.2' '6.0.1' '6.0.6.2' '6.0.3' '6.0.4' '5.0.8' '6.0.5.2' '6.0.7.4' '6.0.6' '5.0.9' '6.0.5' '6.0.6.4' '6.0.7.1' '6.0.6.3')
 FSL_VERSIONS=($(printf "%s\n" "${FSL_VERSIONS[@]}" | sort -rV))
-
+app_name="fsl"
 set_title "fsl" "FSL (Terminal)"
 set_title "fsl_gui" "FSL (GUI)"
-for fsl_version in "${FSL_VERSIONS[@]}"; do
-  echo "Building fsl_${fsl_version}"
+for app_version in "${FSL_VERSIONS[@]}"; do
+  echo "Building fsl_${app_version}"
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
     --base-image ubuntu:24.04 \
-    --fsl version="${fsl_version}" \
+    --fsl version="${app_version}" \
     --yes \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
