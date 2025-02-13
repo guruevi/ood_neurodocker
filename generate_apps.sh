@@ -65,10 +65,11 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         vim wget net-tools locales bzip2  \
                         procps apt-utils mesa-utils       \
                         pulseaudio tmux                   \
-                        tigervnc-standalone-server        \
                         libnss-wrapper gettext            \
                         libgdal-dev libopenblas-dev       \
                         libnode-dev libudunits2-dev       \
+    --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
+    --run "dpkg -i /tmp/tigervnc.deb" \
     --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
     --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -bindir /usr/local/AFNIbin -do_extras" \
     --run "PATH=/usr/local/AFNIbin:$PATH /usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
@@ -78,7 +79,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
     --run "mkdir -p /opt/novnc/utils/websockify" \
     --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
     --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
+    --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
     --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
@@ -121,7 +122,7 @@ for app_version in "${FSL_VERSIONS[@]}"; do
     --run "mkdir -p /opt/novnc/utils/websockify" \
     --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
     --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
+    --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
     --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
