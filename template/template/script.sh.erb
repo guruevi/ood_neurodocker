@@ -11,7 +11,7 @@ SINGULARITY_OPTIONS=""
   SINGULARITY_OPTIONS='--nv'
 <% end %>
 singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif \
-  ttyd -p "$port" -b "/node/${host}/${port}" -c "ttyd:${password}" -w "$HOME" \
+  ttyd -W -p "$port" -b "/node/${host}/${port}" -c "ttyd:${password}" -w "$HOME" \
   -t 'cursorStyle=bar' \
 	-t 'cursorBlink=true' \
 	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
