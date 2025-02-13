@@ -60,7 +60,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         xterm dbus-x11 libdbus-glib-1-2   \
                         vim wget net-tools locales bzip2  \
                         procps apt-utils mesa-utils       \
-                        pulseaudio                        \
+                        pulseaudio tmux                   \
                         tigervnc-standalone-server        \
                         libnss-wrapper gettext            \
                         libgdal-dev libopenblas-dev       \
@@ -106,10 +106,11 @@ for app_version in "${FSL_VERSIONS[@]}"; do
   echo "Building fsl_${app_version}"
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
-    --base-image ubuntu:24.04 \
+    --base-image debian:bookworm-slim \
     --fsl version="${app_version}" \
     --yes \
-    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
+    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
+              procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
