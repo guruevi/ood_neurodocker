@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 CONTAINER="singularity"
 CONTAINER_REPOS="/opt/ood_apps/images"
-APPS="afni ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc"
+APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc"
 
 set_title() {
   yq -i '.title = "'"${2}"'"' bc_"$1"/form.yml
   yq -i '.attributes.bc_account = "'"${1}"'"' bc_"$1"/form.yml
   yq -i '.name = "'"${2}"'"' bc_"$1"/manifest.yml
-  yq -i '.description = "'"${2}"'"' bc_"$1"/manifest.yml
+  yq -i '.description = "This app will launch an interactive shell with '"${2}"' pre-installed. You
+                         will have full access to the resources these nodes provide. This is analogous
+                         to an interactive batch job."' bc_"$1"/manifest.yml
 }
 
 if CONTAINER="singularity"; then
@@ -29,7 +31,7 @@ done
 ########################################################################################################################
 AFNI_VERSIONS=('25.0.06')
 app_name="afni"
-set_title "afni" "AFNI"
+set_title "afni" "AFNI (Shell)"
 set_title "afni_gui" "AFNI (GUI)"
 for app_version in "${AFNI_VERSIONS[@]}"; do
   echo "Building ${app_name}_${app_version}"
@@ -37,7 +39,8 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
     --pkg-manager apt \
     --base-image ubuntu:24.04 \
     --env TZ=America/New_York \
-    --env R_LIBS=/opt/R \
+    --env R_LIBS=/usr/local/lib/R \
+    --env PATH=/usr/local/AFNIbin:/usr/local/bin:/usr/bin:/bin \
     --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
     --install           tcsh xfonts-base libssl-dev       \
                         python-is-python3                 \
@@ -67,7 +70,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         libnode-dev libudunits2-dev       \
     --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
     --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -bindir /usr/local/AFNIbin -do_extras" \
-    --run "/usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
+    --run "export PATH=/usr/local/AFNIbin:$PATH /usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
@@ -100,13 +103,13 @@ done
 FSL_VERSIONS=('6.0.6.1' '6.0.5.1' '5.0.10' '5.0.11' '6.0.0' '6.0.2' '6.0.1' '6.0.6.2' '6.0.3' '6.0.4' '5.0.8' '6.0.5.2' '6.0.7.4' '6.0.6' '5.0.9' '6.0.5' '6.0.6.4' '6.0.7.1' '6.0.6.3')
 FSL_VERSIONS=($(printf "%s\n" "${FSL_VERSIONS[@]}" | sort -rV))
 app_name="fsl"
-set_title "fsl" "FSL (Terminal)"
+set_title "fsl" "FSL (Shell)"
 set_title "fsl_gui" "FSL (GUI)"
 for app_version in "${FSL_VERSIONS[@]}"; do
   echo "Building fsl_${app_version}"
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
-    --base-image debian:bookworm-slim \
+    --base-image debian:bullseye-slim \
     --fsl version="${app_version}" \
     --yes \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
