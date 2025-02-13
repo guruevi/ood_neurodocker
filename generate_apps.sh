@@ -35,9 +35,35 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
   echo "Building ${app_name}_${app_version}"
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
-    --base-image debian:bullseye-slim \
-    --afni method=binaries version="${app_version}" install_r_pkgs=true \
-    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
+    --base-image ubuntu:24.04 \
+    --run "add-apt-repository universe"
+    --install           tcsh xfonts-base libssl-dev       \
+                        python-is-python3                 \
+                        python3-matplotlib python3-numpy  \
+                        python3-flask python3-flask-cors  \
+                        python3-pil                       \
+                        gsl-bin netpbm gnome-tweaks       \
+                        libjpeg62 xvfb xterm vim curl     \
+                        gedit evince eog                  \
+                        libglu1-mesa-dev libglw1-mesa-dev \
+                        libxm4 build-essential            \
+                        libcurl4-openssl-dev libxml2-dev  \
+                        libgfortran-14-dev libgomp1       \
+                        gnome-terminal nautilus           \
+                        firefox xfonts-100dpi             \
+                        r-base-dev cmake bc git           \
+                        libgdal-dev libopenblas-dev       \
+                        libnode-dev libudunits2-dev       \
+                        supervisor xfce4 xfce4-terminal   \
+                        xterm dbus-x11 libdbus-glib-1-2   \
+                        vim wget net-tools locales bzip2  \
+                        procps apt-utils mesa-utils       \
+                        pulseaudio                        \
+                        tigervnc-standalone-server        \
+                        libnss-wrapper gettext            \
+    --run "curl -sL https://raw.githubusercontent.com/afni/afni/master/src/other_builds/OS_notes.linux_ubuntu_24_64_a_admin.txt | bash" \
+    --run "curl -sL https://raw.githubusercontent.com/afni/afni/master/src/other_builds/OS_notes.linux_ubuntu_24_64_b_user.tcsh | tcsh" \
+    --run "curl -sL https://raw.githubusercontent.com/afni/afni/master/src/other_builds/OS_notes.linux_ubuntu_24_64_c_nice.tcsh | tcsh" \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
     --run "chmod +x /usr/bin/ttyd" \
     --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
@@ -76,7 +102,7 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
   echo "Building fsl_${fsl_version}"
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
-    --base-image debian:bullseye-slim \
+    --base-image ubuntu:24.04 \
     --fsl version="${fsl_version}" \
     --yes \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
