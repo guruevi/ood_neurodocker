@@ -24,30 +24,6 @@ for app in $APPS; do
   fi
 done
 
-read -r -d '' VNC_INSTALL_APT <<- EOM
-    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
-    --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
-    --run "chmod +x /usr/bin/ttyd" \
-    --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-    --run "mkdir -p /opt/novnc/utils/websockify" \
-    --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-    --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
-    --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh
-EOM
-
-read -r -d '' VNC_INSTALL_RPM <<- EOM
-    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 dbus-glib vim wget net-tools bzip2 procps-ng mesa-dri-drivers pulseaudio tigervnc-server nss_wrapper gettext \
-    --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
-    --run "chmod +x /usr/bin/ttyd" \
-    --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-    --run "mkdir -p /opt/novnc/utils/websockify" \
-    --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-    --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
-    --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh
-EOM
-
 ########################################################################################################################
 # AFNI
 ########################################################################################################################
@@ -61,7 +37,15 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
     --pkg-manager yum \
     --base-image fedora:36 \
     --afni method=binaries version="${app_version}" install_r_pkgs=true \
-    "$VNC_INSTALL_RPM" \
+    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 dbus-glib vim wget net-tools bzip2 procps-ng mesa-dri-drivers pulseaudio tigervnc-server nss_wrapper gettext \
+    --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
+    --run "chmod +x /usr/bin/ttyd" \
+    --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
+    --run "mkdir -p /opt/novnc/utils/websockify" \
+    --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
+    --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
+    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
+    --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   if [ "${CONTAINER}" = "docker" ]; then
     # TODO: Build and publish Docker env
@@ -94,7 +78,15 @@ for fsl_version in "${FSL_VERSIONS[@]}"; do
     --base-image debian:bullseye-slim \
     --fsl version="${fsl_version}" \
     --yes \
-    "$VNC_INSTALL_APT" \
+    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
+    --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
+    --run "chmod +x /usr/bin/ttyd" \
+    --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
+    --run "mkdir -p /opt/novnc/utils/websockify" \
+    --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.5.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
+    --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
+    --run "printf '\n# docker-headless-vnc-container:\n\$localhost = \"no\";\n1;\n\' >>/etc/tigervnc/vncserver-config-defaults" \
+    --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh
   > "bc_fsl/fsl_${fsl_version}.${CONTAINER_FILE}"
   if [ "${CONTAINER}" = "docker" ]; then
     # TODO: Build and publish Docker env
