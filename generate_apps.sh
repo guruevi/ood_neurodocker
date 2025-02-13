@@ -37,7 +37,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
     --pkg-manager apt \
     --base-image ubuntu:24.04 \
     --env TZ=America/New_York \
-    --env R_LIBS /opt/R \
+    --env R_LIBS=/opt/R \
     --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
     --install           tcsh xfonts-base libssl-dev       \
                         python-is-python3                 \

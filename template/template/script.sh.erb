@@ -4,7 +4,7 @@ TMUX_SOCKET="J${SLURM_JOB_ID}.sock"
 TMUX_SESSION="J${SLURM_JOB_ID}"
 export TMUX_SOCKET TMUX_SESSION
 mkdir app_log tmp
-export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,$(pwd)/tmp:/tmp,/run:/run"
+export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,/run:/run,/tmp:/tmp"
 export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
