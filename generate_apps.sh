@@ -4,8 +4,9 @@ CONTAINER_REPOS="/opt/ood_apps/images"
 APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc"
 
 set_title() {
+  bc_account="${1/_gui/}"
   yq -i '.title = "'"${2}"'"' bc_"$1"/form.yml
-  yq -i '.attributes.bc_account = "'"${1}"'"' bc_"$1"/form.yml
+  yq -i '.attributes.bc_account = "'"${bc_account}"'"' bc_"$1"/form.yml
   yq -i '.name = "'"${2}"'"' bc_"$1"/manifest.yml
   yq -i '.description = "This app will launch an interactive shell with '"${2}"' pre-installed. You
                          will have full access to the resources these nodes provide. This is analogous
