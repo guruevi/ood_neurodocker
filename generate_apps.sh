@@ -68,6 +68,7 @@ for app_version in "${AFNI_VERSIONS[@]}"; do
                         libnss-wrapper gettext            \
                         libgdal-dev libopenblas-dev       \
                         libnode-dev libudunits2-dev       \
+                        x11-utils libxcvt0                \
     --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
     --run "dpkg -i /tmp/tigervnc.deb" \
     --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
@@ -102,8 +103,7 @@ done
 ########################################################################################################################
 # FSL
 ########################################################################################################################
-FSL_VERSIONS=('6.0.6.1' '6.0.5.1' '5.0.10' '5.0.11' '6.0.0' '6.0.2' '6.0.1' '6.0.6.2' '6.0.3' '6.0.4' '5.0.8' '6.0.5.2' '6.0.7.4' '6.0.6' '5.0.9' '6.0.5' '6.0.6.4' '6.0.7.1' '6.0.6.3')
-FSL_VERSIONS=($(printf "%s\n" "${FSL_VERSIONS[@]}" | sort -rV))
+FSL_VERSIONS=('6.0.7.4' '6.0.7.1' '6.0.6.4' '6.0.6.3' '6.0.6.2' '6.0.6.1' '6.0.6' '6.0.5.2' '6.0.5.1' '6.0.5' '6.0.4' '6.0.3' '6.0.2' '6.0.1' '6.0.0' '5.0.11' '5.0.10' '5.0.9' '5.0.8')
 app_name="fsl"
 set_title "fsl" "FSL (Shell)"
 set_title "fsl_gui" "FSL (GUI)"
