@@ -159,8 +159,10 @@ neurodocker generate ${CONTAINER} \
   --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
   --run "chmod +x /usr/bin/ttyd" \
   --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-  --copy /opt/ood_apps/spaceranger/spaceranger-3.1.3.tar.gz /tmp/spaceranger-3.1.3.tar.gz \
-  --run "tar -xvf /tmp/spaceranger-3.1.3.tar.gz -C /opt/spaceranger" \
+  --copy /opt/ood_apps/spaceranger/spaceranger-3.1.3.tar.gz /opt/spaceranger-3.1.3.tar.gz \
+  --run "tar -xvf /opt/spaceranger-3.1.3.tar.gz -C /opt/spaceranger" \
+  --run "rm /opt/spaceranger-3.1.3.tar.gz" \
+  --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
 > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
 mkdir -p "${CONTAINER_REPOS}/${app_name}"
 if [ "${CONTAINER}" = "docker" ]; then
