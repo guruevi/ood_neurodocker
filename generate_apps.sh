@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 CONTAINER="singularity"
 CONTAINER_REPOS="/opt/ood_apps/images"
-APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc"
+APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc spaceranger"
 
 set_title() {
   bc_account="${1/_gui/}"
@@ -141,3 +141,37 @@ for app_version in "${FSL_VERSIONS[@]}"; do
   yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
   yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
 done
+
+########################################################################################################################
+# Spaceranger
+########################################################################################################################
+app_name="spaceranger"
+app_version="3.1.3"
+set_title "spaceranger" "Space Ranger"
+echo "Building spaceranger"
+neurodocker generate ${CONTAINER} \
+  --pkg-manager apt \
+  --base-image debian:bullseye-slim \
+  --yes \
+  --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
+            procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
+  --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
+  --run "chmod +x /usr/bin/ttyd" \
+  --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
+  --copy /opt/ood_apps/spaceranger/spaceranger-3.1.3.tar.gz /tmp/spaceranger-3.1.3.tar.gz \
+  --run "tar -xvf /tmp/spaceranger-3.1.3.tar.gz -C /opt/spaceranger" \
+> "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+mkdir -p "${CONTAINER_REPOS}/${app_name}"
+if [ "${CONTAINER}" = "docker" ]; then
+  # TODO: Build and publish Docker env
+  echo "Docker not supported"
+elif [ "${CONTAINER}" = "singularity" ]; then
+  # Make sure we don't overwrite the container
+  if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+    echo "Singularity container already exists, skipping"
+  else
+    singularity build ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
+    echo "Done building Singularity container"
+  fi
+fi
+yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml

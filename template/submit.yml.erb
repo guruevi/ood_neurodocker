@@ -1,8 +1,8 @@
 <%-
 
   cores_lookup = {
-      "any" => {"general" => 8},
-      "gpu" => {"general" => 8},
+      "any" => {"general" => 64},
+      "gpu" => {"general" => 64},
   }
 
   # GPU type
@@ -15,7 +15,7 @@
     num_cores = max_cores
   end
 
-  memory = num_cores * 1024
+  memory = num_cores * memory_multiplier.blank? ? 1024 : memory_multiplier.to_i
   slurm_args = []
   if gpu_vram > 0
     # You need to have at least the amount of VRAM accessible in RAM
