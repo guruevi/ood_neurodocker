@@ -19,10 +19,12 @@ attributes:
     help: |
       Select the version of this app you would like to use.
     options:
+  gpu: 0
   memory_multiplier: 2048
 form:
   - app_version
   - cores
+  - gpu
   - bc_account
   - bc_num_hours
   - bc_queue
