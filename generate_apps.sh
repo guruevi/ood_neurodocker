@@ -136,7 +136,7 @@ build_fsl() {
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
-      --copy fsl_gui_template/build/src/fsl.desktop /usr/share/applications/fsl.desktop \
+      --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     mkdir -p "${CONTAINER_REPOS}/${app_name}"
     if [ "${CONTAINER}" = "docker" ]; then
@@ -168,6 +168,7 @@ build_spaceranger() {
     --pkg-manager apt \
     --base-image debian:bullseye-slim \
     --yes \
+    --env APPEND_PATH=/opt/spaceranger \
     --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
               procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
@@ -202,24 +203,32 @@ build_spaceranger() {
 build_qupath() {
   app_name="qupath"
   app_version="0.5.1"
-  gen_template "qupath" "QuPath"
+  gen_template "qupath" "QuPath (Shell)"
+  gen_template "qupath_gui" "QuPath (GUI)"
   echo "Building qupath"
   neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
-      --base-image ubuntu:24.04 \
+      --base-image nvcr.io/nvidia/pytorch:25.02-py3 \
       --yes \
+      --env APPEND_PATH=/opt/QuPath/bin:/opt/conda \
       --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
                 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
+                openjdk-17-jdk python3-pip \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
       --run "mkdir -p /opt/novnc/utils/websockify" \
       --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-      --run "wget -qO- https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
+      --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
+      --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ -C /opt" \
+      --run "mkdir /opt/QuPath/extensions" \
+      --run "curl -fsSLo /opt/QuPath/extensions/qupath-extension-djl-0.3.0.jar https://github.com/qupath/qupath-extension-djl/releases/download/v0.3.0/qupath-extension-djl-0.3.0.jar" \
+      --run "pip install pytorch==2.5.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
+      --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
   if [ "${CONTAINER}" = "docker" ]; then
@@ -230,7 +239,7 @@ build_qupath() {
     if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
       echo "Singularity container already exists, skipping"
     else
-      singularity build ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
+      singularity build --nv ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
       echo "Done building Singularity container"
     fi
   fi
