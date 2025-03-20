@@ -216,9 +216,24 @@ build_qupath() {
       --base-image nvcr.io/nvidia/pytorch:25.02-py3 \
       --yes \
       --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
-      --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
-                procps apt-utils python3-numpy mesa-utils pulseaudio libnss-wrapper gettext \
-                openjdk-17-jdk python3-pip \
+      --install           tcsh xfonts-base libssl-dev       \
+                          python-is-python3                 \
+                          python3-matplotlib python3-numpy  \
+                          python3-pil python3-pip           \
+                          build-essential                   \
+                          xfonts-100dpi                     \
+                          cmake bc git                      \
+                          supervisor xfce4 xfce4-terminal   \
+                          xterm dbus-x11 libdbus-glib-1-2   \
+                          vim wget net-tools locales bzip2  \
+                          procps apt-utils mesa-utils       \
+                          pulseaudio tmux                   \
+                          libnss-wrapper gettext            \
+                          libgdal-dev libopenblas-dev       \
+                          libnode-dev libudunits2-dev       \
+                          x11-utils libxcvt0                \
+                          openjdk-17-jdk x11-utils xauth    \
+                          libxcvt0 libxfont2                \
       --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
       --run "dpkg -i /tmp/tigervnc.deb" \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
