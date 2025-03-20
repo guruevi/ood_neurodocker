@@ -121,6 +121,7 @@ build_fsl() {
     neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
       --base-image debian:bullseye-slim \
+      --env TZ=America/New_York \
       --fsl version="${app_version}" \
       --yes \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
@@ -167,6 +168,7 @@ build_spaceranger() {
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
     --base-image debian:bullseye-slim \
+    --env TZ=America/New_York \
     --yes \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
               procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
@@ -206,11 +208,10 @@ build_qupath() {
   neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
+      --env TZ=America/New_York \
       --yes \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
                 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
-      --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
-      --run "dpkg -i /tmp/tigervnc.deb" \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
