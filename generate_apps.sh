@@ -223,10 +223,10 @@ build_qupath() {
       --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
-      --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ -C /opt" \
+      --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ --strip 1 -C /opt" \
       --run "mkdir /opt/QuPath/extensions" \
       --run "curl -fsSLo /opt/QuPath/extensions/qupath-extension-djl-0.3.0.jar https://github.com/qupath/qupath-extension-djl/releases/download/v0.3.0/qupath-extension-djl-0.3.0.jar" \
-      --run "pip install pytorch==2.5.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8" \
+      --run "pip3 install torch==2.5.1 torchvision==0.21.0 torchaudio==2.6.0 jupyter" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
