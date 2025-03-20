@@ -5,16 +5,21 @@ CONTAINER_REPOS="/opt/ood_apps/images"
 
 gen_template() {
   app=$1
+  title=$2
+  subcategory=$3
+  icon=$4
   rsync -a template/ "bc_${app}"/
   if [ -d "${app}"_template ]; then
     rsync -a "${app}"_template/ "bc_${app}"/
   fi
 
   bc_account="${app/_gui/}"
-  yq -i '.title = "'"${2}"'"' bc_"${app}"/form.yml
+  yq -i '.title = "'"${title}"'"' bc_"${app}"/form.yml
   yq -i '.attributes.bc_account = "'"${bc_account}"'"' bc_"${app}"/form.yml
-  yq -i '.name = "'"${2}"'"' bc_"${app}"/manifest.yml
-  yq -i '.description = "This app will launch an interactive shell with '"${2}"' pre-installed. You
+  yq -i '.name = "'"${title}"'"' bc_"${app}"/manifest.yml
+  yq -i '.subcategory = "'"${subcategory}"'"' bc_"${app}"/manifest.yml
+  yq -i '.icon = "'"${icon}"'"' bc_"${app}"/manifest.yml
+  yq -i '.description = "This app will launch an interactive shell with '"${title}"' pre-installed. You
                          will have full access to the resources these nodes provide. This is analogous
                          to an interactive batch job."' bc_"${app}"/manifest.yml
 }
@@ -37,8 +42,8 @@ fi
 build_afni() {
   app_name="afni"
   AFNI_VERSIONS=('25.0.06')
-  gen_template ${app_name} "AFNI (Shell)"
-  gen_template "${app_name}_gui" "AFNI (GUI)"
+  gen_template ${app_name} "AFNI (Shell)" "MRI Analysis" "fa://brain"
+  gen_template "${app_name}_gui" "AFNI (GUI)" "MRI Analysis"
   for app_version in "${AFNI_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
     neurodocker generate ${CONTAINER} \
@@ -113,8 +118,8 @@ build_fsl() {
   ## '6.0.6.2' '6.0.6.1' '6.0.6' '6.0.5.2' '6.0.5.1' '6.0.5' '6.0.4' '6.0.3' '6.0.2' '6.0.1' '6.0.0' '5.0.11' '5.0.10' '5.0.9' '5.0.8'
   FSL_VERSIONS=('6.0.7.4' '6.0.7.1' '6.0.6.4' '6.0.6.3')
   app_name="fsl"
-  gen_template "fsl" "FSL (Shell)"
-  gen_template "fsl_gui" "FSL (GUI)"
+  gen_template "fsl" "FSL (Shell)" "MRI Analysis" "fa://brain"
+  gen_template "fsl_gui" "FSL (GUI)" "MRI Analysis" "fa://brain"
   for app_version in "${FSL_VERSIONS[@]}"; do
     echo "Building fsl_${app_version}"
     neurodocker generate ${CONTAINER} \
@@ -162,7 +167,7 @@ build_fsl() {
 build_spaceranger() {
   app_name="spaceranger"
   app_version="3.1.3"
-  gen_template "spaceranger" "Space Ranger"
+  gen_template "spaceranger" "Space Ranger" "Omics" "fa://shuttle-space"
   echo "Building spaceranger"
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
@@ -203,8 +208,8 @@ build_spaceranger() {
 build_qupath() {
   app_name="qupath"
   app_version="0.5.1"
-  gen_template "qupath" "QuPath (Shell)"
-  gen_template "qupath_gui" "QuPath (GUI)"
+  gen_template "qupath" "QuPath (Shell)" "Image Processing" "fa://magnifying-glass"
+  gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
   neurodocker generate ${CONTAINER} \
       --pkg-manager apt \

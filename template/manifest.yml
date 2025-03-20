@@ -1,8 +1,8 @@
 ---
 name: ${app}
-icon: fa://brain
+icon: ${icon}
 category: Interactive Apps
-subcategory: MRI Analysis
+subcategory: ${subcategory}
 role: batch_connect
 description: |
   This app will launch an interactive shell with ${app} pre-installed. You
