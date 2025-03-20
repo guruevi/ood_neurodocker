@@ -173,7 +173,6 @@ build_spaceranger() {
     --pkg-manager apt \
     --base-image debian:bullseye-slim \
     --yes \
-    --env APPEND_PATH=/opt/spaceranger \
     --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
               procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
@@ -199,6 +198,7 @@ build_spaceranger() {
     fi
   fi
   yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+  sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/spaceranger/bin"@' bc_${app_name}/template/script.sh.erb
 }
 
 
@@ -217,8 +217,10 @@ build_qupath() {
       --yes \
       --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
-                procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
+                procps apt-utils python3-numpy mesa-utils pulseaudio libnss-wrapper gettext \
                 openjdk-17-jdk python3-pip \
+      --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
+      --run "dpkg -i /tmp/tigervnc.deb" \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
@@ -248,6 +250,7 @@ build_qupath() {
     fi
   fi
   yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-  sed -i 's/export SINGULARITYENV_APPEND_PATH=""/export SINGULARITYENV_APPEND_PATH="\/opt\/QuPath/bin"/' bc_qupath/template/script.sh.erb
-  sed -i 's/export SINGULARITYENV_APPEND_PATH=""/export SINGULARITYENV_APPEND_PATH="\/opt\/QuPath/bin"/' bc_qupath_gui/template/script.sh.erb
+  yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+  sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}/template/script.sh.erb
+  sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}_gui/template/script.sh.erb
 }
