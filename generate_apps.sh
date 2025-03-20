@@ -215,7 +215,6 @@ build_qupath() {
       --pkg-manager apt \
       --base-image nvcr.io/nvidia/pytorch:25.02-py3 \
       --yes \
-      --env APPEND_PATH=/opt/QuPath/bin:/opt/conda \
       --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
                 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
@@ -249,4 +248,6 @@ build_qupath() {
     fi
   fi
   yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+  sed -i 's/export SINGULARITYENV_APPEND_PATH=""/export SINGULARITYENV_APPEND_PATH="\/opt\/QuPath/bin"/' bc_qupath/template/script.sh.erb
+  sed -i 's/export SINGULARITYENV_APPEND_PATH=""/export SINGULARITYENV_APPEND_PATH="\/opt\/QuPath/bin"/' bc_qupath_gui/template/script.sh.erb
 }
