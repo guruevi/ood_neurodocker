@@ -5,7 +5,6 @@ CONTAINER_REPOS="/opt/ood_apps/images"
 
 gen_template() {
   app=$1
-  echo "Building ${app}"
   rsync -a template/ "bc_${app}"/
   if [ -d "${app}"_template ]; then
     rsync -a "${app}"_template/ "bc_${app}"/
@@ -24,6 +23,12 @@ if CONTAINER="singularity"; then
   CONTAINER_FILE="def"
 elif CONTAINER="docker"; then
   CONTAINER_FILE="Dockerfile"
+fi
+
+# Test if yq is on path
+if ! command -v yq &> /dev/null; then
+  echo "yq could not be found"
+  exit 1
 fi
 
 ########################################################################################################################
@@ -214,7 +219,8 @@ build_qupath() {
       --run "wget -qO- https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
-      --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \  > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+      --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
+  > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
   if [ "${CONTAINER}" = "docker" ]; then
     # TODO: Build and publish Docker env
