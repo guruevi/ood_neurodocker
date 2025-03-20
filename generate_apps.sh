@@ -44,8 +44,6 @@ build_afni() {
     neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
-      --env TZ=America/New_York \
-      --env DEBIAN_FRONTEND=noninteractive \
       --env R_LIBS=/usr/local/lib/R \
       --env PATH=/usr/local/AFNIbin:/usr/local/bin:/usr/bin:/bin \
       --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
@@ -122,10 +120,9 @@ build_fsl() {
     neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
       --base-image debian:bullseye-slim \
-      --env TZ=America/New_York \
-      --env DEBIAN_FRONTEND=noninteractive \
       --fsl version="${app_version}" \
       --yes \
+      --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
                 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
@@ -170,9 +167,8 @@ build_spaceranger() {
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
     --base-image debian:bullseye-slim \
-    --env TZ=America/New_York \
-    --env DEBIAN_FRONTEND=noninteractive \
     --yes \
+    --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
     --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
               procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
     --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
@@ -211,9 +207,8 @@ build_qupath() {
   neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
-      --env TZ=America/New_York \
-      --env DEBIAN_FRONTEND=noninteractive \
       --yes \
+      --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
       --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
                 procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
