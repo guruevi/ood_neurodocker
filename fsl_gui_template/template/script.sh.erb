@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 mkdir app_log tmp
-export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,$(pwd)/tmp:/tmp,/run:/run"
+export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,$(pwd)/tmp:/tmp,/run:/run,/opt/ood_apps:/opt/ood_apps"
 export SINGULARITYENV_VNC_PORT="$vncport"
 export SINGULARITYENV_NO_VNC_PORT="$port"
 export SINGULARITYENV_VNC_PW="$password"

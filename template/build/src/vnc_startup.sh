@@ -2,12 +2,6 @@
 # every exit != 0 fails the script
 set -e
 
-# Make sure the user's .bashrc is sourced
-source $HOME/.bashrc
-
-# resolve IP address for VNC server
-VNC_IP=$(hostname -i)
-
 echo -e "\n------------------ change VNC password  --------------------"
 PASSWD_PATH="$(pwd)/.vnc/passwd"
 mkdir -p $(dirname "$PASSWD_PATH")
