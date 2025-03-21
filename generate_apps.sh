@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 CONTAINER="singularity"
 CONTAINER_REPOS="/opt/ood_apps/images"
+SINGULARITY_TMPDIR="/opt/ood_apps/images/.tmp"
+SINGULARITY_CACHEDIR="/opt/ood_apps/images/.cache"
 # APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc spaceranger"
 
 gen_template() {
