@@ -88,7 +88,7 @@ build_afni() {
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
       --run "mkdir -p /opt/novnc/utils/websockify" \
       --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-      --run "wget -qO- https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
+      --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
@@ -135,7 +135,7 @@ build_fsl() {
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
       --run "mkdir -p /opt/novnc/utils/websockify" \
       --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-      --run "wget -qO- https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
+      --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
@@ -234,21 +234,17 @@ build_qupath() {
                           x11-utils libxcvt0                \
                           openjdk-17-jdk x11-utils xauth    \
                           libxcvt0 libxfont2                \
-      --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
-      --run "dpkg -i /tmp/tigervnc.deb" \
+                          tigervnc-standalone-server tigervnc-common \
+                          websockify novnc                  \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-      --run "mkdir -p /opt/novnc/utils/websockify" \
-      --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-      --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.13.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
-      --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-      --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
       --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ --strip 1 -C /opt" \
       --run "mkdir /opt/QuPath/extensions" \
       --run "curl -fsSLo /opt/QuPath/extensions/qupath-extension-djl-0.3.0.jar https://github.com/qupath/qupath-extension-djl/releases/download/v0.3.0/qupath-extension-djl-0.3.0.jar" \
       --run "pip3 install torch==2.5.1 torchvision torchaudio jupyter" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
+      --copy template/build/src/novnc_proxy /usr/share/novnc/utils/novnc_proxy \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
