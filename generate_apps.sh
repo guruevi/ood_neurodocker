@@ -215,7 +215,7 @@ build_qupath() {
   echo "Building qupath"
   neurodocker generate ${CONTAINER} \
       --pkg-manager apt \
-      --base-image nvcr.io/nvidia/pytorch:25.02-py3 \
+      --base-image nvcr.io/nvidia/pytorch:22.12-py3 \
       --yes \
       --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
       --install           tcsh xfonts-base libssl-dev       \
