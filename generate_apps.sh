@@ -246,7 +246,6 @@ build_qupath() {
       --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ --strip 1 -C /opt" \
       --run "mkdir /opt/QuPath/extensions" \
       --run "curl -fsSLo /opt/QuPath/extensions/qupath-extension-djl-0.3.0.jar https://github.com/qupath/qupath-extension-djl/releases/download/v0.3.0/qupath-extension-djl-0.3.0.jar" \
-      --run "pip3 install torch==2.5.1 torchvision torchaudio jupyter" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --copy template/build/src/novnc_proxy /usr/share/novnc/utils/novnc_proxy \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
