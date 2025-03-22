@@ -235,10 +235,10 @@ build_qupath() {
                           libnode-dev libudunits2-dev       \
                           x11-utils libxcvt0                \
                           openjdk-17-jdk x11-utils xauth    \
-                          libxcvt0 libxfont2                \
+                          libxfont2                         \
                           tigervnc-standalone-server        \
                           tigervnc-common                   \
-                          tigervnc-tools websockify novnc   \
+                          novnc                             \
       --run "git clone https://github.com/novnc/websockify /usr/share/novnc/utils/websockify" \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
