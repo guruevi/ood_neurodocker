@@ -239,8 +239,7 @@ build_qupath() {
                           tigervnc-standalone-server        \
                           tigervnc-common                   \
                           tigervnc-tools websockify novnc   \
-      --run "mkdir -p /usr/share/novnc/utils/websockify" \
-      --run "ln -s /usr/bin/websockify /usr/share/novnc/utils/websockify/run" \
+      --run git clone https://github.com/novnc/websockify /usr/share/novnc/utils/websockify \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \

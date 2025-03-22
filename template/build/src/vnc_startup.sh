@@ -22,6 +22,13 @@ PID_SUB=$!
 echo -e "\n------------------ start dbus  -----------------------------"
 eval $(dbus-launch)
 
+# Cast whatever we got to integer (will be 0 if empty or string)
+VNC_COL_DEPTH=$((VNC_COL_DEPTH+0))
+
+if [ "$VNC_COL_DEPTH" -ne 8 ] && [ "$VNC_COL_DEPTH" -ne 16 ] && [ "$VNC_COL_DEPTH" -ne 24 ] && [ "$VNC_COL_DEPTH" -ne 32 ]; then
+  VNC_COL_DEPTH=24
+fi
+
 echo -e "\n------------------ start VNC server ------------------------"
 echo -e "start vncserver with param: VNC_COL_DEPTH=$VNC_COL_DEPTH, VNC_RESOLUTION=$VNC_RESOLUTION\n..."
 vnc_cmd="/usr/bin/vncserver $DISPLAY -rfbport $VNC_PORT -depth $VNC_COL_DEPTH -geometry $VNC_RESOLUTION PasswordFile=$PASSWD_PATH"
