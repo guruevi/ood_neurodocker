@@ -1,0 +1,23 @@
+---
+name: qupath
+url: https://qupath.github.io/
+binaries:
+  urls:
+    0.5.1: https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz
+    0.5.0: https://github.com/qupath/qupath/releases/download/v0.5.0/QuPath-v0.5.0-Linux.tar.xz
+  arguments:
+    optional:
+      version: 0.5.1
+      install_path: /opt
+      desktop: "1"
+  dependencies:
+    apt:
+      - git
+      - xz-utils
+  instructions: |
+      {{ self.install_dependencies() }}
+      curl -sL {{ self.urls[self.version] }} | tar -xJ --strip 1 -C {{ self.install_path }}
+      {%- if self.desktop | int > 0 %}
+      echo -e "[Desktop Entry]\nVersion=1\nType=Application\nName=QuPath\nExec={{ self.install_path }}/bin/QuPath\nIcon={{ self.install_path }}/lib/QuPath.png\nTerminal=false\nStartupNotify=false\nCategories=Science;MRI;Neuroimaging;" > /usr/share/applications/qupath.desktop
+      cp /usr/share/applications/qupath.desktop /etc/xdg/autostart/qupath.desktop
+      {%- endif %}

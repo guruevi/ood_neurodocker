@@ -1,0 +1,27 @@
+---
+name: novnc
+url: https://novnc.com/
+binaries:
+  urls:
+    git: https://github.com/novnc/websockify
+  arguments:
+    optional:
+      version: "git"
+  dependencies:
+    apt:
+      - git
+      - xfce4
+      - xfce4-terminal
+      - dbus-x11
+      - x11-utils
+      - xauth
+      - tigervnc-standalone-server
+      - tigervnc-common
+      - tigervnc-tools
+      - novnc
+      - python3-websockify
+      - python3-numpy
+  instructions: |
+      {{ self.install_dependencies() }}
+      rm -f /etc/xdg/autostart/xscreensaver.desktop
+      git clone {{ self.urls[self.version] }} /usr/share/novnc/utils/websockify
