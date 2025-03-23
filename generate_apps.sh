@@ -233,7 +233,7 @@ build_qupath() {
                           libnss-wrapper gettext            \
                           libgdal-dev libopenblas-dev       \
                           libnode-dev libudunits2-dev       \
-                          x11-utils libxcvt0                \
+                          x11-utils                         \
                           openjdk-17-jdk x11-utils xauth    \
                           libxcvt0 libxfont2                \
                           tigervnc-standalone-server        \
