@@ -239,17 +239,16 @@ build_qupath() {
                           tigervnc-standalone-server        \
                           tigervnc-common                   \
                           tigervnc-tools websockify novnc   \
+      --run "rm -f /etc/xdg/autostart/xscreensaver.desktop" \
       --run "git clone https://github.com/novnc/websockify /usr/share/novnc/utils/websockify" \
       --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
       --run "chmod +x /usr/bin/ttyd" \
       --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
       --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ --strip 1 -C /opt" \
-      --run "mkdir /opt/QuPath/extensions" \
-      --run "curl -fsSLo /opt/QuPath/extensions/qupath-extension-djl-0.3.0.jar https://github.com/qupath/qupath-extension-djl/releases/download/v0.3.0/qupath-extension-djl-0.3.0.jar" \
-      --run "pip3 install torch==2.5.1 torchvision torchaudio jupyter" \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --copy template/build/src/novnc_proxy /usr/share/novnc/utils/novnc_proxy \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
+      --copy ${app_name}_gui_template/build/src/${app_name}.desktop /etc/xdg/autostart/${app_name}.desktop \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
   if [ "${CONTAINER}" = "docker" ]; then
