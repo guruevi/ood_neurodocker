@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-CONTAINER="singularity"
+CONTAINER="docker"
 CONTAINER_REPOS="/opt/ood_apps/images"
 SINGULARITY_TMPDIR="/opt/ood_apps/images/.tmp"
 SINGULARITY_CACHEDIR="/opt/ood_apps/images/.cache"
@@ -26,10 +26,13 @@ gen_template() {
                          to an interactive batch job."' bc_"${app}"/manifest.yml
 }
 
-if CONTAINER="singularity"; then
+if [ "$CONTAINER" = "singularity" ]; then
   CONTAINER_FILE="def"
-elif CONTAINER="docker"; then
+elif [ "$CONTAINER" = "docker" ]; then
   CONTAINER_FILE="Dockerfile"
+else
+  echo "Unknown container type: $CONTAINER"
+  exit 1
 fi
 
 # Test if yq is on path
@@ -213,47 +216,18 @@ build_qupath() {
   gen_template "qupath" "QuPath (Shell)" "Image Processing" "fa://magnifying-glass"
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
-  neurodocker generate ${CONTAINER} \
+  neurodocker generate --template-path nd_templates ${CONTAINER} \
       --pkg-manager apt \
-      --base-image nvcr.io/nvidia/pytorch:25.02-py3 \
+      --base-image nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04 \
       --yes \
-      --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
-      --install           tcsh xfonts-base libssl-dev       \
-                          python-is-python3                 \
-                          python3-matplotlib python3-numpy  \
-                          python3-pil python3-pip           \
-                          build-essential                   \
-                          xfonts-100dpi                     \
-                          cmake bc git                      \
-                          supervisor xfce4 xfce4-terminal   \
-                          xterm dbus-x11 libdbus-glib-1-2   \
-                          vim wget net-tools locales bzip2  \
-                          procps apt-utils mesa-utils       \
-                          pulseaudio tmux                   \
-                          libnss-wrapper gettext            \
-                          libgdal-dev libopenblas-dev       \
-                          libnode-dev libudunits2-dev       \
-                          x11-utils                         \
-                          openjdk-17-jdk x11-utils xauth    \
-                          libxcvt0 libxfont2                \
-                          tigervnc-standalone-server        \
-                          tigervnc-common                   \
-                          tigervnc-tools websockify novnc   \
-      --run "rm -f /etc/xdg/autostart/xscreensaver.desktop" \
-      --run "git clone https://github.com/novnc/websockify /usr/share/novnc/utils/websockify" \
-      --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
-      --run "chmod +x /usr/bin/ttyd" \
-      --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-      --run "curl -sL https://github.com/qupath/qupath/releases/download/v0.5.1/QuPath-v0.5.1-Linux.tar.xz | tar -xJ --strip 1 -C /opt" \
+      --novnc version=git \
+      --qupath version=${app_version} \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --copy template/build/src/novnc_proxy /usr/share/novnc/utils/novnc_proxy \
-      --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
-      --copy ${app_name}_gui_template/build/src/${app_name}.desktop /etc/xdg/autostart/${app_name}.desktop \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
   if [ "${CONTAINER}" = "docker" ]; then
-    # TODO: Build and publish Docker env
-    echo "Docker not supported"
+    docker build -t qupath:${app_version} -f bc_qupath/qupath_${app_version}.Dockerfile .
   elif [ "${CONTAINER}" = "singularity" ]; then
     # Make sure we don't overwrite the container
     if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then

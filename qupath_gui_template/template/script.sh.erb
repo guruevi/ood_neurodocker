@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-mkdir app_log tmp
-export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,$(pwd)/tmp:/tmp,/run:/run,/opt/ood_apps:/opt/ood_apps"
+mkdir app_log tmp run
+export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,$(pwd)/tmp:/tmp,$(pwd)/run:/run,/opt/ood_apps:/opt/ood_apps"
 export SINGULARITYENV_VNC_PORT="$vncport"
 export SINGULARITYENV_NO_VNC_PORT="$port"
 export SINGULARITYENV_VNC_PW="$password"
@@ -12,4 +12,4 @@ SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/vnc_startup.sh
+singularity exec ${SINGULARITY_OPTIONS} --pwd ${HOME} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/vnc_startup.sh
