@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
-CONTAINER="docker"
-CONTAINER_REPOS="/opt/ood_apps/images"
-SINGULARITY_TMPDIR="/opt/ood_apps/images/.tmp"
-SINGULARITY_CACHEDIR="/opt/ood_apps/images/.cache"
+if [ -z "${CONTAINER}" ]; then
+  CONTAINER="singularity"
+fi
+if [ -z "${CONTAINER_REPOS}" ]; then
+  CONTAINER_REPOS="/opt/ood_apps/images"
+fi
+if [ -z "${SINGULARITY_BIN}" ]; then
+  SINGULARITY_BIN="/bin/singularity"
+fi
+if [ -z "${SINGULARITY_TMPDIR}" ]; then
+  SINGULARITY_TMPDIR="/opt/ood_apps/images/.tmp"
+fi
+if [ -z "${SINGULARITY_CACHEDIR}" ]; then
+  SINGULARITY_CACHEDIR="/opt/ood_apps/images/.cache"
+fi
 # APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc spaceranger"
 
 gen_template() {
@@ -220,14 +231,14 @@ build_qupath() {
       --pkg-manager apt \
       --base-image nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04 \
       --yes \
-      --novnc version=git \
+      --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
       --qupath version=${app_version} \
       --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
-      --copy template/build/src/novnc_proxy /usr/share/novnc/utils/novnc_proxy \
+      --user nonroot \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
   if [ "${CONTAINER}" = "docker" ]; then
-    docker build -t qupath:${app_version} -f bc_qupath/qupath_${app_version}.Dockerfile .
+    docker buildx build --platform linux/amd64 -t qupath:${app_version} -f bc_qupath/qupath_${app_version}.Dockerfile .
   elif [ "${CONTAINER}" = "singularity" ]; then
     # Make sure we don't overwrite the container
     if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then

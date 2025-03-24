@@ -41,16 +41,18 @@ echo -e "\n------------------ start noVNC  ----------------------------"
 if [ -z "$NO_VNC_HOME" ]; then
   NO_VNC_HOME="/usr/share/novnc"
 fi
-"$NO_VNC_HOME"/utils/novnc_proxy --vnc localhost:"$VNC_PORT" --listen "$NO_VNC_PORT" > /var/log/app/no_vnc_startup.log 2>&1 &
+"$NO_VNC_HOME"/utils/novnc_proxy --vnc localhost:"$VNC_PORT" --listen "$NO_VNC_PORT" &
 PID_SUB=$!
 
 echo -e "\n------------------ start dbus  -----------------------------"
-eval $(dbus-launch)
+export $(dbus-launch)
+
+echo -e "\n------------------ start pulseaudio  -----------------------"
+pulseaudio --start
 
 echo -e "\n------------------ start VNC server ------------------------"
 echo -e "start vncserver with param: VNC_COL_DEPTH=$VNC_COL_DEPTH, VNC_RESOLUTION=$VNC_RESOLUTION\n..."
-vnc_cmd="/usr/bin/vncserver $DISPLAY -rfbport $VNC_PORT -depth $VNC_COL_DEPTH -geometry $VNC_RESOLUTION PasswordFile=$PASSWD_PATH"
-$vnc_cmd > /var/log/app/vnc_startup.log 2>&1
+/usr/bin/vncserver "$DISPLAY" -rfbport "$VNC_PORT" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" PasswordFile="$PASSWD_PATH"
 
 echo -e "\n\n------------------ VNC environment started --------------"
 echo -e "\nconnect via VNC viewer on $(hostname -s):${NO_VNC_PORT}"
