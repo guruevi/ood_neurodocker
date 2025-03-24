@@ -107,7 +107,6 @@ build_afni() {
       --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
-      --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     mkdir -p "${CONTAINER_REPOS}/${app_name}"
     if [ "${CONTAINER}" = "docker" ]; then
@@ -154,7 +153,6 @@ build_fsl() {
       --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
       --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
       --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
-      --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
@@ -233,7 +231,6 @@ build_qupath() {
       --yes \
       --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
       --qupath version=${app_version} \
-      --copy template/build/src/vnc_startup.sh /opt/vnc_startup.sh \
       --user nonroot \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   mkdir -p "${CONTAINER_REPOS}/${app_name}"
