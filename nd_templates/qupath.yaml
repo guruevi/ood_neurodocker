@@ -22,3 +22,5 @@ binaries:
       echo "[Desktop Entry]\nVersion=1\nType=Application\nName=QuPath\nExec={{ self.install_path }}/QuPath/bin/QuPath\nIcon={{ self.install_path }}/QuPath/lib/QuPath.png\nTerminal=false\nStartupNotify=false\nCategories=Science;MRI;Neuroimaging;" > /usr/share/applications/qupath.desktop
       cp /usr/share/applications/qupath.desktop /etc/xdg/autostart/qupath.desktop
       {%- endif %}
+  env:
+    TZ: America/New_York
