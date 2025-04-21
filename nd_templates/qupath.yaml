@@ -15,6 +15,7 @@ binaries:
       - git
       - xz-utils
   instructions: |
+      export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
       {{ self.install_dependencies() }}
       curl -sL {{ self.urls[self.version] }} | tar -xJ --strip 1 -C {{ self.install_path }}
       {%- if self.desktop | int > 0 %}

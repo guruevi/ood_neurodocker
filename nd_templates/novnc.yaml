@@ -11,24 +11,32 @@ binaries:
       websockify_version: "e81894751365afc19fe64fc9d0e5c6fc52655c36"
       novnc_proxy_version: "7f5b51acf35963d125992bb05d32aa1b68cf87bf"
       vnc_startup_script: |
-        #!/bin/bash\n
+        #!/usr/bin/env bash\n
         set -e\n
+        # Reset color depth if invalid\n
         VNC_COL_DEPTH=$((VNC_COL_DEPTH+0))\n
         if [ "$VNC_COL_DEPTH" -ne 8 ] && [ "$VNC_COL_DEPTH" -ne 16 ] && [ "$VNC_COL_DEPTH" -ne 24 ] && [ "$VNC_COL_DEPTH" -ne 32 ]; then\n
           echo "------------------ VNC color depth reset to 24 ---------------"\n
           VNC_COL_DEPTH=24\n
         fi\n
+        # Start pulseaudio server so we can play audio\n
+        export $(dbus-launch)\n
+        pulseaudio --start\n
+        PID_PULSE=$!\n
+        # Set up VNC\n
         PASSWD_PATH="$HOME/.vnc/passwd"\n
         mkdir -p $(dirname "$PASSWD_PATH")\n
         echo "$VNC_PW" | vncpasswd -f > "$PASSWD_PATH"\n
         chmod 600 "$PASSWD_PATH"\n
         "$NO_VNC_HOME"/utils/novnc_proxy --vnc localhost:"$VNC_PORT" --listen "$NO_VNC_PORT" &\n
-        PID_SUB=$!\n
-        export $(dbus-launch)\n
-        pulseaudio --start\n
+        PID_PROXY=$!\n
         /usr/bin/vncserver "$DISPLAY" -rfbport "$VNC_PORT" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" PasswordFile="$PASSWD_PATH"\n
+        PID_VNC=$!\n
         echo "connect via VNC viewer on $(hostname -s):${NO_VNC_PORT}/vnc.html"\n
-        wait $PID_SUB\n
+        wait $PID_VNC\n
+        kill $PID_PROXY\n
+        kill $PID_PULSE\n
+        exit 0\n
   dependencies:
     apt:
       - git
@@ -55,6 +63,7 @@ binaries:
       - pavucontrol
       - dbus-user-session
   instructions: |
+    export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
     {{ self.install_dependencies() }}
     mkdir /.repro-bins /var/log/app
     curl -fsL -o /.repro-bins/google-chrome.deb {{ self.urls['google-chrome'] }}
@@ -74,3 +83,4 @@ binaries:
     VNC_PW: "vncpassword"
     NO_VNC_HOME: "/usr/share/novnc"
     VNC_ENTRYPOINT: "/opt/vnc_startup.sh"
+    TZ: "America/New_York"

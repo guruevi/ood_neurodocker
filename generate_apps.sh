@@ -226,8 +226,9 @@ build_qupath() {
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
   neurodocker generate --template-path nd_templates ${CONTAINER} \
+      --env TZ=America/New_York \
       --pkg-manager apt \
-      --base-image nvcr.io/nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04 \
+      --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
       --yes \
       --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
       --qupath version=${app_version} \
