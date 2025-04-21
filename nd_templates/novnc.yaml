@@ -19,7 +19,7 @@ binaries:
           echo "------------------ VNC color depth reset to 24 ---------------"\n
           VNC_COL_DEPTH=24\n
         fi\n
-        # Make user's /run/user directory\n
+        # Make user /run/user directory\n
         mkdir -p /run/user/$UID\n
         # Start pulseaudio server so we can play audio\n
         export $(dbus-launch)\n
