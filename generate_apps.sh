@@ -226,7 +226,6 @@ build_qupath() {
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
   neurodocker generate --template-path nd_templates ${CONTAINER} \
-      --env TZ=America/New_York \
       --pkg-manager apt \
       --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
       --yes \

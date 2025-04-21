@@ -67,6 +67,7 @@ binaries:
     {{ self.install_dependencies() }}
     mkdir /.repro-bins /var/log/app
     curl -fsL -o /.repro-bins/google-chrome.deb {{ self.urls['google-chrome'] }}
+    apt update && apt -y upgrade && apt -y install libvulkan1
     apt install /.repro-bins/google-chrome.deb
     rm -f /etc/xdg/autostart/xscreensaver.desktop
     git clone --no-checkout {{ self.urls['websockify'] }} /usr/share/novnc/utils/websockify
