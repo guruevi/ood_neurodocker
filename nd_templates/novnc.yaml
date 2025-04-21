@@ -19,6 +19,8 @@ binaries:
           echo "------------------ VNC color depth reset to 24 ---------------"\n
           VNC_COL_DEPTH=24\n
         fi\n
+        # Make user's /run/user directory\n
+        mkdir -p /run/user/$UID\n
         # Start pulseaudio server so we can play audio\n
         export $(dbus-launch)\n
         pulseaudio --start\n
@@ -73,6 +75,7 @@ binaries:
     git clone --no-checkout {{ self.urls['websockify'] }} /usr/share/novnc/utils/websockify
     git -C /usr/share/novnc/utils/websockify checkout {{ self.websockify_version }}
     curl -fsL -o /usr/share/novnc/utils/novnc_proxy {{ self.urls['novnc_proxy'] }}
+    chmod +x /usr/share/novnc/utils/novnc_proxy
     printf '{{ self.vnc_startup_script }}' | sed 's/^[[:space:]]*&& //' > /opt/vnc_startup.sh
     chmod +x {{ self.env.VNC_ENTRYPOINT }}
   env:
