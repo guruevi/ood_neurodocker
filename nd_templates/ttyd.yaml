@@ -14,7 +14,7 @@ binaries:
   instructions: |
     export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
     {{ self.install_dependencies() }}
-    curl -L --output /usr/bin/ttyd {{ self.urls[self.version] }}.{{ self.arch }}"
+    curl -L --output /usr/bin/ttyd "{{ self.urls[self.version] }}.{{ self.arch }}"
     chmod +x /usr/bin/ttyd
   env:
     TZ: "America/New_York"
