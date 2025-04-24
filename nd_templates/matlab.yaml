@@ -26,7 +26,7 @@ binaries:
     # Run mpm to install MATLAB in the target location and delete the mpm installation afterwards.
     curl -L --output /usr/bin/mpm {{ self.urls['glnxa64'] }}
     chmod +x /usr/bin/mpm
-    /usr/bin/mpm install --release="{{ self.version }}" --destination="/opt/matlab/{{ self.version }}" --products="{{ self.products }}"
+    /usr/bin/mpm install --release="{{ self.version }}" --destination="/opt/matlab/{{ self.version }}" --products={{ self.products }}
     ln -s "/opt/matlab/{{ self.version }}/bin/matlab" /usr/local/bin/matlab
   env:
     TZ: "America/New_York"
