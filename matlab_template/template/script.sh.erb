@@ -19,4 +19,4 @@ singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_acco
   -t 'cursorStyle=bar' \
 	-t 'cursorBlink=true' \
 	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
-  /usr/bin/matlab -nodisplay -r "disp(['Current folder: ' pwd])"
+  /usr/local/bin/matlab -nodisplay -r "disp(['Current folder: ' pwd])"

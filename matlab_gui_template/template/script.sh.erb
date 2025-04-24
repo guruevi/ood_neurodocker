@@ -17,4 +17,4 @@ SINGULARITY_OPTIONS='--nv'
 # Start MATLAB Server
 #
 cd "${HOME}"
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /usr/local/bin/matlab-proxy-app <%= context.extra_matlab_args %>
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /usr/local/bin/matlab-proxy-app
