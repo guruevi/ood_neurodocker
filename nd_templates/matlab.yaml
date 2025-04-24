@@ -1,0 +1,36 @@
+---
+name: matlab
+url: https://www.mathworks.com/
+binaries:
+  urls:
+    glnxa64: https://www.mathworks.com/mpm/glnxa64/mpm
+  arguments:
+    optional:
+      version: "R2024b"
+      products: "Audio_Toolbox,Bioinformatics_Toolbox,Communications_Toolbox,Computer_Vision_Toolbox,Control_System_Toolbox,Curve_Fitting_Toolbox,Data_Acquisition_Toolbox,Deep_Learning_HDL_Toolbox,Deep_Learning_Toolbox,GPU_Coder,Image_Acquisition_Toolbox,Image_Processing_Toolbox,MATLAB,MATLAB_Compiler,Medical_Imaging_Toolbox,Optimization_Toolbox,Parallel_Computing_Toolbox,Partial_Differential_Equation_Toolbox,Reinforcement_Learning_Toolbox,Signal_Processing_Toolbox,Spreadsheet_Link,Statistics_and_Machine_Learning_Toolbox,Symbolic_Math_Toolbox,Text_Analytics_Toolbox"
+  dependencies:
+    apt:
+      - ca-certificates
+      - wget
+      - xvfb
+      - python3
+      - python3-pip
+  instructions: |
+    export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
+    {{ self.install_dependencies() }}
+    # Install mpm dependencies.
+    /usr/bin/python3 -m pip install --prefix=/usr matlab-proxy
+    # Add "matlab" user
+    adduser --shell /bin/bash --disabled-password --gecos "" matlab
+    mkdir -p /home/matlab
+    # Run mpm to install MATLAB in the target location and delete the mpm installation afterwards.
+    curl -L --output /usr/bin/mpm {{ self.urls['glnxa64'] }}
+    chmod +x /usr/bin/mpm
+    /usr/bin/mpm install --release="{{ self.version }}" --destination="/opt/matlab/{{ self.version }}" --products="{{ self.products }}"
+    ln -s "/opt/matlab/{{ self.version }}/bin/matlab" /usr/local/bin/matlab
+  env:
+    TZ: "America/New_York"
+    LICENSE_SERVER: ""
+    MLM_LICENSE_FILE: ""
+    MW_DDUX_FORCE_ENABLE: "True"
+    MW_CONTEXT_TAGS: "MATLAB:DOCKERFILE:V1"

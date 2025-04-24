@@ -1,0 +1,20 @@
+---
+name: ttyd
+url: https://github.com/tsl0922/ttyd
+binaries:
+  urls:
+    1.7.7: https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd
+  arguments:
+    optional:
+      version: "1.7.7"
+      arch: "x86_64"
+  dependencies:
+    apt:
+      - tmux
+  instructions: |
+    export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
+    {{ self.install_dependencies() }}
+    curl -L --output /usr/bin/ttyd {{ self.urls[self.version] }}.{{ self.arch }}"
+    chmod +x /usr/bin/ttyd
+  env:
+    TZ: "America/New_York"

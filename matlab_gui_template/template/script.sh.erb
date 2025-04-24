@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps:/opt/ood_apps"
+# Set singularity environment variables
+export SINGULARITYENV_MWI_CUSTOM_HTTP_HEADERS='{"Content-Security-Policy": "frame-ancestors *.ood.urmc-sh.rochester.edu:* https://ood.urmc-sh.rochester.edu:*;"}'
+export SINGULARITYENV_MWI_APP_PORT=${port}
+export SINGULARITYENV_MWI_ENABLE_TOKEN_AUTH=true
+export SINGULARITYENV_MWI_AUTH_TOKEN=${password}
+export SINGULARITYENV_MWI_BASE_URL="/node/${host}/${port}"
+export SINGULARITYENV_MWI_APP_HOST="0.0.0.0"
+export SINGULARITYENV_MLM_LICENSE_FILE="${HOME}/.matlab-license"
+
+SINGULARITY_OPTIONS=""
+<% if context.gpu.present? and context.gpu.to_i > 0 %>
+SINGULARITY_OPTIONS='--nv'
+<% end %>
+#
+# Start MATLAB Server
+#
+cd "${HOME}"
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /usr/local/bin/matlab-proxy-app <%= context.extra_matlab_args %>

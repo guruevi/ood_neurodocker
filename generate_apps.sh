@@ -31,9 +31,16 @@ gen_template() {
   yq -i '.attributes.bc_account = "'"${bc_account}"'"' bc_"${app}"/form.yml
   yq -i '.name = "'"${title}"'"' bc_"${app}"/manifest.yml
   yq -i '.subcategory = "'"${subcategory}"'"' bc_"${app}"/manifest.yml
-  yq -i '.icon = "'"${icon}"'"' bc_"${app}"/manifest.yml
-  yq -i '.description = "This app will launch an interactive shell with '"${title}"' pre-installed. You
-                         will have full access to the resources these nodes provide. This is analogous
+
+  # Remove the icon pointer if a file exists
+  if [ -f "bc_${app}/icon.png" ]; then
+    yq -i 'del(.icon)' bc_"${app}"/manifest.yml
+  else
+    yq -i '.icon = "'"${icon}"'"' bc_"${app}"/manifest.yml
+  fi
+
+  yq -i '.description = "This will launch an interactive shell with '"${title}"' pre-installed. You
+                         will have full access to the resources requested. This is analogous
                          to an interactive batch job."' bc_"${app}"/manifest.yml
 }
 
@@ -225,7 +232,7 @@ build_qupath() {
   gen_template "qupath" "QuPath (Shell)" "Image Processing" "fa://magnifying-glass"
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
-  neurodocker generate --template-path nd_templates ${CONTAINER} \
+  neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
       --yes \
@@ -249,4 +256,47 @@ build_qupath() {
   yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
   sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}/template/script.sh.erb
   sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}_gui/template/script.sh.erb
+}
+
+########################################################################################################################
+# MATLAB
+########################################################################################################################
+build_matlab() {
+  app_name="matlab"
+  # To check the available matlab-deps images, see: https://hub.docker.com/r/mathworks/matlab-deps
+  base_repo="mathworks/matlab-deps"
+
+  MATLAB_VERSIONS=('R2024a' 'R2023b' 'R2023a' 'R2022b' 'R2022a' 'R2021b' 'R2021a' 'R2020b' 'R2020a')
+  gen_template "matlab" "MATLAB (Shell)" "Image Processing" "fa://cogs"
+  gen_template "matlab_gui" "MATLAB (GUI)" "Image Processing" "fa://cogs"
+  echo "Building MATLAB"
+
+  for app_version in "${MATLAB_VERSIONS[@]}"; do
+    ### Generate  ###
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+        --pkg-manager apt \
+        --base-image ${base_repo}:"${app_version}" \
+        --yes \
+        --ttyd version=1.7.7 \
+        --matlab version="${app_version}" \
+        --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+
+    ### Build ###
+    # Make sure the destination exists
+    mkdir -p "${CONTAINER_REPOS}/${app_name}"
+    if [ "${CONTAINER}" = "docker" ]; then
+      docker buildx build --platform linux/amd64 -t ${base_repo}:"${app_version}" -f bc_${app_name}/${app_name}_"${app_version}".Dockerfile .
+    elif [ "${CONTAINER}" = "singularity" ]; then
+      # Make sure we don't overwrite the container
+      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+        echo "Singularity container already exists, skipping"
+      else
+        singularity build --nv "${CONTAINER_REPOS}"/${app_name}/${app_name}_"${app_version}".sif bc_${app_name}/${app_name}_"${app_version}".def
+        echo "Done building Singularity container"
+      fi
+    fi
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+  done
 }
