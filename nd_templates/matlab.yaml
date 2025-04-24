@@ -7,7 +7,7 @@ binaries:
   arguments:
     optional:
       version: "R2024b"
-      products: "Audio_Toolbox Bioinformatics_Toolbox Communications_Toolbox Computer_Vision_Toolbox Control_System_Toolbox Curve_Fitting_Toolbox Data_Acquisition_Toolbox Deep_Learning_HDL_Toolbox Deep_Learning_Toolbox GPU_Coder Image_Acquisition_Toolbox Image_Processing_Toolbox MATLAB MATLAB_Compiler Medical_Imaging_Toolbox Optimization_Toolbox Parallel_Computing_Toolbox Partial_Differential_Equation_Toolbox Reinforcement_Learning_Toolbox Signal_Processing_Toolbox Spreadsheet_Link Statistics_and_Machine_Learning_Toolbox Symbolic_Math_Toolbox Text_Analytics_Toolbox"
+      products: "Audio_Toolbox Bioinformatics_Toolbox Communications_Toolbox Computer_Vision_Toolbox Control_System_Toolbox Curve_Fitting_Toolbox Deep_Learning_HDL_Toolbox Deep_Learning_Toolbox GPU_Coder Image_Acquisition_Toolbox Image_Processing_Toolbox MATLAB MATLAB_Compiler Medical_Imaging_Toolbox Optimization_Toolbox Parallel_Computing_Toolbox Partial_Differential_Equation_Toolbox Reinforcement_Learning_Toolbox Signal_Processing_Toolbox Statistics_and_Machine_Learning_Toolbox Symbolic_Math_Toolbox Text_Analytics_Toolbox"
   dependencies:
     apt:
       - ca-certificates
