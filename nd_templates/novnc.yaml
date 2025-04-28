@@ -23,19 +23,18 @@ binaries:
         mkdir -p /run/user/$UID
         # Start pulseaudio server so we can play audio
         export $(dbus-launch)
-        pulseaudio --start
-        PID_PULSE=$!
+        # If PULSE_SERVER is set, use it
+        if [ -n "$NO_AUDIO" ]; then
+          pulseaudio --start
+        fi
         # Set up VNC
         PASSWD_PATH="$HOME/.vnc/passwd"
         mkdir -p $(dirname "$PASSWD_PATH")
         echo "$VNC_PW" | vncpasswd -f > "$PASSWD_PATH"
         chmod 600 "$PASSWD_PATH"
         "$NO_VNC_HOME"/utils/novnc_proxy --vnc localhost:"$VNC_PORT" --listen "$NO_VNC_PORT" &
-        PID_PROXY=$!
         echo "connect via VNC viewer on $(hostname -s):${NO_VNC_PORT}/vnc.html"
         /usr/bin/vncserver "$DISPLAY" -rfbport "$VNC_PORT" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" PasswordFile="$PASSWD_PATH" -fg
-        kill $PID_PROXY
-        kill $PID_PULSE
         exit 0
   dependencies:
     apt:
