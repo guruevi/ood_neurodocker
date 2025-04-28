@@ -47,7 +47,6 @@ binaries:
       - xauth
       - tigervnc-standalone-server
       - tigervnc-common
-      - tigervnc-tools
       - novnc
       - python3-websockify
       - python3-numpy
@@ -59,15 +58,17 @@ binaries:
       - libnss3
       - wget
       - xdg-utils
-      - fonts-recommended
       - pavucontrol
       - dbus-user-session
   instructions: |
     export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
     {{ self.install_dependencies() }}
+    # If Ubuntu 24.04, install additional packages
+    if [ "$(lsb_release -rs)" = "24.04" ]; then
+      apt update && apt -y upgrade && apt install -y tigervnc-tools fonts-recommended libvulkan1
+    fi
     mkdir /.repro-bins /var/log/app
     curl -fsL -o /.repro-bins/google-chrome.deb {{ self.urls['google-chrome'] }}
-    apt update && apt -y upgrade && apt -y install libvulkan1
     apt install /.repro-bins/google-chrome.deb
     rm -f /etc/xdg/autostart/xscreensaver.desktop
     git clone --no-checkout {{ self.urls['websockify'] }} /usr/share/novnc/utils/websockify
