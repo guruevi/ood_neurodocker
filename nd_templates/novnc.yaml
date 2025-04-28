@@ -61,7 +61,7 @@ binaries:
       - pavucontrol
       - dbus-user-session
       - libvulkan1
-      - lsb_release
+      - lsb-release
   instructions: |
     export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
     {{ self.install_dependencies() }}
