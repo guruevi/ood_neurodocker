@@ -60,12 +60,13 @@ binaries:
       - xdg-utils
       - pavucontrol
       - dbus-user-session
+      - libvulkan1
   instructions: |
     export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
     {{ self.install_dependencies() }}
     # If Ubuntu 24.04, install additional packages
     if [ "$(lsb_release -rs)" = "24.04" ]; then
-      apt update && apt -y upgrade && apt install -y tigervnc-tools fonts-recommended libvulkan1
+      apt update && apt -y upgrade && apt install -y tigervnc-tools fonts-recommended
     fi
     mkdir /.repro-bins /var/log/app
     curl -fsL -o /.repro-bins/google-chrome.deb {{ self.urls['google-chrome'] }}
