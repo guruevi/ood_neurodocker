@@ -300,3 +300,49 @@ build_matlab() {
     yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
   done
 }
+
+########################################################################################################################
+# AFNI
+########################################################################################################################
+build_afni() {
+  app_name="afni"
+  base_repo="afni/afni_make_build"
+  tags_url="https://hub.docker.com/v2/namespaces/afni/repositories/afni_make_build/tags?page_size=5&architecture=amd64"
+  # Get all versions from the Docker Hub API (change page size if you want more)
+  mapfile -t AFNI_VERSIONS < <(curl -s "${tags_url}" | jq -r '.results[].name')
+  gen_template "${app_name}" "AFNI (Shell)" "Image Processing" "fa://magnifying-glass"
+  gen_template "${app_name}_gui" "AFNI (GUI)" "Image Processing" "fa://magnifying-glass"
+  echo "Building AFNI"
+  for app_version in "${AFNI_VERSIONS[@]}"; do
+    if [[ "${app_version}" == "latest" ]]; then
+      # Skip the 'latest' tag
+      continue
+    fi
+    ### Generate  ###
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+        --pkg-manager apt \
+        --base-image ${base_repo}:"${app_version}" \
+        --yes \
+        --ttyd version=1.7.7 \
+        --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
+        --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+
+    ### Build ###
+    # Make sure the destination exists
+    mkdir -p "${CONTAINER_REPOS}/${app_name}"
+    if [ "${CONTAINER}" = "docker" ]; then
+      docker buildx build --platform linux/amd64 -t ${base_repo}:"${app_version}" -f bc_${app_name}/${app_name}_"${app_version}".Dockerfile .
+    elif [ "${CONTAINER}" = "singularity" ]; then
+      # Make sure we don't overwrite the container
+      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+        echo "Singularity container already exists, skipping"
+      else
+        singularity build --nv "${CONTAINER_REPOS}"/${app_name}/${app_name}_"${app_version}".sif bc_${app_name}/${app_name}_"${app_version}".def
+        echo "Done building Singularity container"
+      fi
+    fi
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+  done
+}
