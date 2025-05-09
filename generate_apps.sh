@@ -64,61 +64,20 @@ fi
 ########################################################################################################################
 build_afni() {
   app_name="afni"
-  AFNI_VERSIONS=('25.0.06')
+  AFNI_VERSIONS=($(date +%Y%m%d))
   gen_template ${app_name} "AFNI (Shell)" "MRI Analysis" "fa://brain"
   gen_template "${app_name}_gui" "AFNI (GUI)" "MRI Analysis"
   for app_version in "${AFNI_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate ${CONTAINER} \
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
-      --env R_LIBS=/usr/local/lib/R \
-      --env PATH=/usr/local/AFNIbin:/usr/local/bin:/usr/bin:/bin \
-      --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
-      --install           tcsh xfonts-base libssl-dev       \
-                          python-is-python3                 \
-                          python3-matplotlib python3-numpy  \
-                          python3-flask python3-flask-cors  \
-                          python3-pil                       \
-                          gsl-bin netpbm gnome-tweaks       \
-                          libjpeg62 xvfb xterm vim curl     \
-                          gedit evince eog                  \
-                          libglu1-mesa-dev libglw1-mesa-dev \
-                          libxm4 build-essential            \
-                          libcurl4-openssl-dev libxml2-dev  \
-                          libgfortran-14-dev libgomp1       \
-                          gnome-terminal nautilus           \
-                          firefox xfonts-100dpi             \
-                          r-base-dev cmake bc git           \
-                          libgdal-dev libopenblas-dev       \
-                          libnode-dev libudunits2-dev       \
-                          supervisor xfce4 xfce4-terminal   \
-                          xterm dbus-x11 libdbus-glib-1-2   \
-                          vim wget net-tools locales bzip2  \
-                          procps apt-utils mesa-utils       \
-                          pulseaudio tmux                   \
-                          libnss-wrapper gettext            \
-                          libgdal-dev libopenblas-dev       \
-                          libnode-dev libudunits2-dev       \
-                          x11-utils libxcvt0                \
-      --run "curl -L --output /tmp/@update.afni.binaries https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries" \
-      --run "tcsh /tmp/@update.afni.binaries -package linux_ubuntu_24_64 -bindir /usr/local/AFNIbin -do_extras" \
-      --run "PATH=/usr/local/AFNIbin:$PATH /usr/local/AFNIbin/rPkgsInstall -pkgs ALL" \
-      --run "curl -L --output /tmp/tigervnc.deb https://versaweb.dl.sourceforge.net/project/tigervnc/stable/1.14.1/ubuntu-24.04LTS/amd64/tigervncserver_1.14.1-1ubuntu1_amd64.deb" \
-      --run "dpkg -i /tmp/tigervnc.deb" \
-      --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
-      --run "chmod +x /usr/bin/ttyd" \
-      --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-      --run "mkdir -p /opt/novnc/utils/websockify" \
-      --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-      --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
-      --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-      --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
+      --afni ubuntu_version="24" \
+      --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     mkdir -p "${CONTAINER_REPOS}/${app_name}"
     if [ "${CONTAINER}" = "docker" ]; then
-      # TODO: Build and publish Docker env
-      echo "Docker not supported"
+      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
     elif [ "${CONTAINER}" = "singularity" ]; then
       # Make sure we don't overwrite the container
       if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
@@ -279,52 +238,6 @@ build_matlab() {
         --yes \
         --ttyd version=1.7.7 \
         --matlab version="${app_version}" \
-        --user nonroot \
-    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-
-    ### Build ###
-    # Make sure the destination exists
-    mkdir -p "${CONTAINER_REPOS}/${app_name}"
-    if [ "${CONTAINER}" = "docker" ]; then
-      docker buildx build --platform linux/amd64 -t ${base_repo}:"${app_version}" -f bc_${app_name}/${app_name}_"${app_version}".Dockerfile .
-    elif [ "${CONTAINER}" = "singularity" ]; then
-      # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-        echo "Singularity container already exists, skipping"
-      else
-        singularity build --nv "${CONTAINER_REPOS}"/${app_name}/${app_name}_"${app_version}".sif bc_${app_name}/${app_name}_"${app_version}".def
-        echo "Done building Singularity container"
-      fi
-    fi
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
-  done
-}
-
-########################################################################################################################
-# AFNI
-########################################################################################################################
-build_afni() {
-  app_name="afni"
-  base_repo="afni/afni_make_build"
-  tags_url="https://hub.docker.com/v2/namespaces/afni/repositories/afni_make_build/tags?page_size=5&architecture=amd64"
-  # Get all versions from the Docker Hub API (change page size if you want more)
-  mapfile -t AFNI_VERSIONS < <(curl -s "${tags_url}" | jq -r '.results[].name')
-  gen_template "${app_name}" "AFNI (Shell)" "Image Processing" "fa://magnifying-glass"
-  gen_template "${app_name}_gui" "AFNI (GUI)" "Image Processing" "fa://magnifying-glass"
-  echo "Building AFNI"
-  for app_version in "${AFNI_VERSIONS[@]}"; do
-    if [[ "${app_version}" == "latest" ]]; then
-      # Skip the 'latest' tag
-      continue
-    fi
-    ### Generate  ###
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
-        --pkg-manager apt \
-        --base-image ${base_repo}:"${app_version}" \
-        --yes \
-        --ttyd version=1.7.7 \
-        --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
         --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
 

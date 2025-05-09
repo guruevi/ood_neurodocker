@@ -1,0 +1,63 @@
+---
+# Instructions to install AFNI.
+
+# TODO: consider updating the source instructions to use cmake.
+
+name: afni
+url: https://afni.nimh.nih.gov
+binaries:
+    arguments:
+        optional:
+            install_path: /opt/afni
+            ubuntu_version: "24"
+    urls:
+        latest: git+https://github.com/afni/afni.git@master#egg=afnipy&subdirectory=src/python_scripts
+    env:
+        PATH: '{{ self.install_path }}/bin:$PATH'
+        AFNI_PLUGINPATH: '{{ self.install_path }}'
+        TZ: America/New_York
+    dependencies:
+        apt:
+        - apt-utils
+        - bc
+        - bzip2
+        - build-essential
+        - cmake
+        - curl
+        - gettext
+        - gsl-bin
+        - git
+        - libcurl4-openssl-dev
+        - libgdal-dev
+        - libglw1-mesa-dev
+        - libglu1-mesa-dev
+        - libgfortran-14-dev
+        - libgomp1
+        - libjpeg62
+        - libnode-dev
+        - libnss-wrapper
+        - libopenblas-dev
+        - libssl-dev
+        - libudunits2-dev
+        - libxml2-dev
+        - net-tools
+        - netpbm
+        - procps
+        - python-is-python3
+        - python3-matplotlib
+        - python3-numpy
+        - python3-pil
+        - python3-pip
+        - pipx
+        - r-base-dev
+        - tcsh
+    instructions: |
+        export DEBIAN_FRONTEND="noninteractive" TZ="{{ self.env.TZ }}"
+        {{ self.install_dependencies() }}
+        mkdir /.repro-bins
+        mkdir -p {{ self.install_path }}
+        curl -L --output /.repro-bins/update.afni.binaries "https://afni.nimh.nih.gov/pub/dist/bin/misc/%40update.afni.binaries"
+        chmod +x /.repro-bins/update.afni.binaries        
+        /.repro-bins/update.afni.binaries -package linux_ubuntu_{{ self.ubuntu_version }}_64 -bindir {{ self.install_path }} -do_extras
+        pipx install "{{ self.urls.latest }}"
+        PATH="{{ self.install_path }}:$PATH" {{ self.install_path }}/rPkgsInstall -pkgs ALL

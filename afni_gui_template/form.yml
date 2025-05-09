@@ -12,18 +12,7 @@ attributes:
     value: 2
     label: "Number of cores"
     help: "Enter a value between 1 and 8"
-  gpu:
-    required: true
-    widget: "select"
-    label: "GPU Type:"
-    value: 0
-    help: |
-      Select a GPU type (if necessary).
-    options:
-      - [ "None", 0 ]
-      - [ "L40S - 6GB VRAM", 6 ]
-#      - [ "L40S - 12GB VRAM", 12 ]
-#      - [ "L40S - 24GB VRAM", 24 ]
+  gpu: 0
   app_version:
     required: true
     widget: "select"
