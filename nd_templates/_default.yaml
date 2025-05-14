@@ -39,8 +39,10 @@ source:
         sed -i -e 's/# {{ self.env['LC_ALL'] }} UTF-8/{{ self.env['LC_ALL'] }} UTF-8/' /etc/locale.gen
         dpkg-reconfigure --frontend=noninteractive locales
         update-locale LANG="{{ self.env['LANG'] }}"
+        apt -y dist-upgrade
         {%- elif self.pkg_manager == "yum" %}
         localedef -i {{ self.env['LC_ALL'].split('.')[0] }} -f {{ self.env['LC_ALL'].split('.')[1] }} {{ self.env['LC_ALL'] }}
+        yum -y upgrade --refresh
         {%- endif %}
         chmod 777 /opt && chmod a+s /opt
         mkdir -p /neurodocker

@@ -1,0 +1,109 @@
+---
+name: kasmvnc
+url: https://www.kasmweb.com/kasmvnc
+binaries:
+  urls:
+    bookworm: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_bookworm_1.3.4_amd64.deb
+    bullseye: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_bullseye_1.3.4_amd64.deb
+    buster: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_buster_1.3.4_amd64.deb
+    fclocal: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_focal_1.3.4_amd64.deb
+    jammy: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_jammy_1.3.4_amd64.deb
+    noble: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_noble_1.3.4_amd64.deb
+    bionic: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_bionic_1.3.1_amd64.deb
+    google-chrome: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  arguments:
+    optional:
+      de: xfce
+      kasm_startup_script: |
+        #!/usr/bin/env bash
+        set -e
+        mkdir -p /run/user/$UID
+        export $(dbus-launch)
+        if [ -z "$VNC_DE" ]; then
+          VNC_DE="xfce";
+        fi
+        if [ -z "$VNC_DISPLAY" ]; then
+          VNC_DISPLAY="1";
+        fi
+        if [ -z "$VNC_RESOLUTION" ]; then
+          VNC_RESOLUTION="1920x1080";
+        fi
+        if [ -z "$VNC_COL_DEPTH" ]; then
+          VNC_COL_DEPTH="24";
+        fi
+        if [ -z "$XVNC_OPTIONS" ]; then
+          XVNC_OPTIONS="";
+        fi
+        if [ -z "$VNC_PW" ]; then
+          VNC_PW="vncpassword";
+        fi
+        if [ -z "$XSTARTUP" ]; then
+          XSTARTUP="/etc/X11/Xsession";
+        fi
+        echo -e "$VNC_PW\\n$VNC_PW\\n" | vncpasswd -u ttyd -wo /tmp/kasmpasswd
+        /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" $XVNC_OPTIONS
+        exit 0
+      but_can_it_run_doom: "NO"
+      single_app: "NO"
+      kasm_distro: "noble"
+  dependencies:
+    apt:
+      - git
+      - xfce4
+      - xfce4-terminal
+      - dbus-x11
+      - x11-utils
+      - xauth
+      - fonts-liberation
+      - wget
+      - xdg-utils
+      - dbus-user-session
+      - libvulkan1
+      - lsb-release
+      - yq
+      - libgomp1
+      - libunwind8
+      - libxfont2
+      - ssl-cert
+      - libswitch-perl
+      - libyaml-tiny-perl
+      - libhash-merge-simple-perl
+      - liblist-moreutils-perl
+      - libtry-tiny-perl
+      - libdatetime-timezone-perl
+      - libasound2t64
+      - libnspr4
+      - libnss3
+      - libdatetime-perl
+  instructions: |
+    export DEBIAN_FRONTEND="noninteractive" TZ="{{ self.env.TZ }}"
+    {{ self.install_dependencies() }}
+    rm -f /etc/xdg/autostart/xscreensaver.desktop
+    mkdir -p /.repro-bins
+    curl -fsL -o /.repro-bins/kasmvncserver.deb "{{ self.urls[self.kasm_distro] }}"
+    dpkg -i /.repro-bins/kasmvncserver.deb
+    curl -fsL -o /.repro-bins/google-chrome.deb "{{ self.urls['google-chrome'] }}"
+    apt install /.repro-bins/google-chrome.deb
+    cp /etc/ssl/certs/ssl-cert-snakeoil.pem /opt/cert.pem
+    cp /etc/ssl/private/ssl-cert-snakeoil.key /opt/key.pem
+    yq eval -n --output-format=yaml '.network.ssl.require_ssl = false | .network.ssl.pem_certificate = "/opt/cert.pem" | .network.ssl.pem_key = "/opt/key.pem" | .server.advanced.kasm_password_file = "/tmp/kasmpasswd" | .command_line.prompt = false | .logging.level = 0' > /etc/kasmvnc/kasmvnc.yaml
+    chmod a+r /opt/cert.pem /opt/key.pem
+    mkdir -p /run/user
+    chmod 1777 /run/user
+    {% if "Y" in self.but_can_it_run_doom %}
+    apt-get -y update
+    apt-get install -y chocolate-doom doom-wad-shareware prboom-plus freedoom
+    {% endif %}
+    {% if "Y" in self.single_app %}
+    apt-get remove -y xfce4-panel
+    {% endif %}
+    printf '{{ self.kasm_startup_script }}' | sed 's/[[:space:]]*&& /\n/g' > /opt/kasm_startup.sh
+    chmod +x /opt/kasm_startup.sh
+  env:
+    VNC_RESOLUTION: "1024x768"
+    VNC_COL_DEPTH: "24"
+    VNC_PW: "vncpassword"
+    VNC_ENTRYPOINT: "/opt/vnc_startup.sh"
+    VNC_DE: "xfce"
+    VNC_DISPLAY: "1"
+    TZ: "America/New_York"

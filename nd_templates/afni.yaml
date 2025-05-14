@@ -54,7 +54,7 @@ binaries:
     instructions: |
         export DEBIAN_FRONTEND="noninteractive" TZ="{{ self.env.TZ }}"
         {{ self.install_dependencies() }}
-        mkdir /.repro-bins
+        mkdir -p /.repro-bins
         mkdir -p {{ self.install_path }}
         curl -L --output /.repro-bins/update.afni.binaries "https://afni.nimh.nih.gov/pub/dist/bin/misc/%40update.afni.binaries"
         chmod +x /.repro-bins/update.afni.binaries        

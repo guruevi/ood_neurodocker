@@ -68,7 +68,7 @@ binaries:
     if [ "$(lsb_release -rs)" = "24.04" ]; then
       apt update && apt -y upgrade && apt install -y tigervnc-tools fonts-recommended
     fi
-    mkdir /.repro-bins /var/log/app
+    mkdir -p /.repro-bins /var/log/app
     curl -fsL -o /.repro-bins/google-chrome.deb {{ self.urls['google-chrome'] }}
     apt install /.repro-bins/google-chrome.deb
     rm -f /etc/xdg/autostart/xscreensaver.desktop

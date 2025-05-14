@@ -16,6 +16,21 @@ if [ -z "${SINGULARITY_CACHEDIR}" ]; then
 fi
 # APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc spaceranger"
 
+if [ "$CONTAINER" = "singularity" ]; then
+  CONTAINER_FILE="def"
+elif [ "$CONTAINER" = "docker" ]; then
+  CONTAINER_FILE="Dockerfile"
+else
+  echo "Unknown container type: $CONTAINER"
+  exit 1
+fi
+
+# Test if yq is on path
+if ! command -v yq &> /dev/null; then
+  echo "yq could not be found"
+  exit 1
+fi
+
 gen_template() {
   app=$1
   title=$2
@@ -44,20 +59,38 @@ gen_template() {
                          to an interactive batch job."' bc_"${app}"/manifest.yml
 }
 
-if [ "$CONTAINER" = "singularity" ]; then
-  CONTAINER_FILE="def"
-elif [ "$CONTAINER" = "docker" ]; then
-  CONTAINER_FILE="Dockerfile"
-else
-  echo "Unknown container type: $CONTAINER"
-  exit 1
-fi
-
-# Test if yq is on path
-if ! command -v yq &> /dev/null; then
-  echo "yq could not be found"
-  exit 1
-fi
+########################################################################################################################
+# DOOM
+########################################################################################################################
+build_doom() {
+  app_name="doom"
+  DOOM_VERSION=($(date +%Y%m%d))
+  gen_template "${app_name}" "DOOM (Shell)" "DOOM"
+  gen_template "${app_name}_gui" "DOOM (GUI)" "DOOM (GUI)" "fa://gamepad"
+  for app_version in "${DOOM_VERSION[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+      --pkg-manager apt \
+      --base-image ubuntu:noble \
+      --kasmvnc de=xfce kasm_distro="noble" but_can_it_run_doom="Y" \
+      --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    mkdir -p "${CONTAINER_REPOS}/${app_name}"
+    if [ "${CONTAINER}" = "docker" ]; then
+      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
+    elif [ "${CONTAINER}" = "singularity" ]; then
+      # Make sure we don't overwrite the container
+      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+        echo "Singularity container already exists, skipping"
+      else
+        singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
+        echo "Done building Singularity container"
+      fi
+    fi
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+  done
+}
 
 ########################################################################################################################
 # AFNI
@@ -72,6 +105,7 @@ build_afni() {
     neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
+      --kasmvnc de=xfce kasm_distro="noble" \
       --afni ubuntu_version="24" \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
