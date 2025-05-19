@@ -72,6 +72,7 @@ build_doom() {
     neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image ubuntu:noble \
+      --ttyd version=1.7.7 \
       --kasmvnc de=xfce kasm_distro="noble" but_can_it_run_doom="Y" \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
