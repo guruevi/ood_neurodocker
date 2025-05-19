@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-mkdir /tmp/kasmvnc
-export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps,/tmp/kasmvnc:/etc/kasmvnc"
+# This file needs to exist for kasm to start - you may use yq to add config variables that cannot be overridden by the user (or use XVNC_OPTIONS)
+# mkdir /tmp/kasmvnc
+# touch /tmp/kasmvnc/kasmvnc.yaml
+# add this to BIND: /tmp/kasmvnc:/etc/kasmvnc
+export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps"
 export SINGULARITYENV_VNC_PW="$password"
 export SINGULARITYENV_VNC_RESOLUTION="<%= context.bc_vnc_resolution %>"
 export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+export SINGULARITYENV_XVNC_OPTIONS="-websocketPort $port"
 
 SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
