@@ -93,6 +93,45 @@ build_doom() {
   done
 }
 
+
+
+########################################################################################################################
+# Wolfenstein 3D
+########################################################################################################################
+build_wolf3d() {
+  app_name="wolf3d"
+  WOLF_VERSION=($(date +%Y%m%d))
+  gen_template "${app_name}" "Wolfenstein 3D (Shell)" "Wolfenstein"
+  gen_template "${app_name}_gui" "Wolfenstein (GUI)" "Wolfenstein (GUI)" "fa://gamepad"
+  for app_version in "${WOLF_VERSION[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+      --pkg-manager apt \
+      --base-image ubuntu:noble \
+      --ttyd version=1.7.7 \
+      --kasmvnc de=xfce kasm_distro="noble" but_can_it_run_doom="Y" \
+      --install libgl1-mesa-glx libgl1-mesa-dri libgl1 \
+      --run "wget ..." \
+      --run "tar -xvf ..." \
+      --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    mkdir -p "${CONTAINER_REPOS}/${app_name}"
+    if [ "${CONTAINER}" = "docker" ]; then
+      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
+    elif [ "${CONTAINER}" = "singularity" ]; then
+      # Make sure we don't overwrite the container
+      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+        echo "Singularity container already exists, skipping"
+      else
+        singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
+        echo "Done building Singularity container"
+      fi
+    fi
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+  done
+}
+
 ########################################################################################################################
 # AFNI
 ########################################################################################################################
@@ -107,6 +146,7 @@ build_afni() {
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
       --kasmvnc de=xfce kasm_distro="noble" \
+      --ttyd version=1.7.7 \
       --afni ubuntu_version="24" \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
