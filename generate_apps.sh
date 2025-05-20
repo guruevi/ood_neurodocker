@@ -107,6 +107,7 @@ build_afni() {
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
       --kasmvnc de=xfce kasm_distro="noble" \
+      --ttyd version=1.7.7 \
       --afni ubuntu_version="24" \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
