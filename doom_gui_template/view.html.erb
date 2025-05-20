@@ -4,7 +4,8 @@
 -%>
 <script type="text/javascript">
   function get_<%= form_id %>_action(form) {
-    form.action = "https://ttyd:<%= password %>@" + window.location.host.split(":")[0] + "/node/<%= host %>/<%= port %>/"
+      // Check if we are
+    form.action = "https://ttyd:<%= password %>@" + window.location.host.split(":")[0] + "/rnode/<%= host %>/<%= port %>/vnc.html?autoconnect=true&path=rnode/<%= host %>/<%= port %>/websockify"
 }
 </script>
 <form id="<%= form_id %>" method="get" target="_blank" onsubmit="get_<%= form_id %>_action(this)">
