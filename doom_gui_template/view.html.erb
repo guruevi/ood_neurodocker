@@ -1,15 +1,3 @@
-<%-
-  # generate form id, based on host and port
-  form_id = Digest::SHA1.hexdigest("--" + host.to_s + "--" + port.to_s + "--")
--%>
-<script type="text/javascript">
-  function get_<%= form_id %>_action(form) {
-      // Check if we are
-    form.action = "https://ttyd:<%= password %>@" + window.location.host.split(":")[0] + "/rnode/<%= host %>/<%= port %>/vnc.html?autoconnect=true&path=rnode/<%= host %>/<%= port %>/websockify"
-}
-</script>
-<form id="<%= form_id %>" method="get" target="_blank" onsubmit="get_<%= form_id %>_action(this)">
-  <button class="btn btn-primary" type="submit">
-    <i class="fa fa-eye"></i> Connect
-  </button>
-</form>
+<a href="/rnode/<%= host %>/<%= port %>/vnc.html?autoconnect=true&path=rnode/<%= host %>/<%= port %>/websockify" target="_blank" class="btn btn-primary">
+    <i class="fas fa-eye"></i> Connect
+</a>
