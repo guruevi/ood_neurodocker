@@ -34,13 +34,9 @@ binaries:
         if [ -z "$XVNC_OPTIONS" ]; then
           XVNC_OPTIONS="";
         fi
-        if [ -z "$VNC_PW" ]; then
-          VNC_PW="vncpassword";
-        fi
         if [ -z "$XSTARTUP" ]; then
           XSTARTUP="/etc/X11/Xsession";
         fi
-        echo -e "$VNC_PW\\n$VNC_PW\\n" | vncpasswd -u ttyd -wo /tmp/kasmpasswd
         /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" $XVNC_OPTIONS
         exit 0
       but_can_it_run_doom: "NO"
@@ -102,7 +98,6 @@ binaries:
   env:
     VNC_RESOLUTION: "1024x768"
     VNC_COL_DEPTH: "24"
-    VNC_PW: "vncpassword"
     VNC_ENTRYPOINT: "/opt/vnc_startup.sh"
     VNC_DE: "xfce"
     VNC_DISPLAY: "1"
