@@ -17,8 +17,6 @@ binaries:
       kasm_startup_script: |
         #!/usr/bin/env bash
         set -e
-        mkdir -p /run/user/$UID
-        export $(dbus-launch)
         if [ -z "$VNC_DE" ]; then
           VNC_DE="xfce";
         fi
@@ -37,7 +35,7 @@ binaries:
         if [ -z "$XSTARTUP" ]; then
           XSTARTUP="/etc/X11/Xsession";
         fi
-        /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" $XVNC_OPTIONS
+        /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" -disableBasicAuth $XVNC_OPTIONS
         exit 0
       but_can_it_run_doom: "NO"
       single_app: "NO"
@@ -73,6 +71,7 @@ binaries:
       - libdatetime-perl
   instructions: |
     export DEBIAN_FRONTEND="noninteractive" TZ="{{ self.env.TZ }}"
+    apt -y upgrade
     {{ self.install_dependencies() }}
     rm -f /etc/xdg/autostart/xscreensaver.desktop
     mkdir -p /.repro-bins
@@ -82,13 +81,15 @@ binaries:
     apt install /.repro-bins/google-chrome.deb
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem /opt/cert.pem
     cp /etc/ssl/private/ssl-cert-snakeoil.key /opt/key.pem
-    yq eval -n --output-format=yaml '.network.ssl.require_ssl = false | .network.ssl.pem_certificate = "/opt/cert.pem" | .network.ssl.pem_key = "/opt/key.pem" | .server.advanced.kasm_password_file = "/tmp/kasmpasswd" | .command_line.prompt = false | .logging.level = 0' > /etc/kasmvnc/kasmvnc.yaml
+    yq eval -n --output-format=yaml '.network.ssl.require_ssl = false | .network.ssl.pem_certificate = "/opt/cert.pem" | .network.ssl.pem_key = "/opt/key.pem" | .user_session.session_type = "exclusive" | .command_line.prompt = false | .logging.log_dest = "stdout"' > /etc/kasmvnc/kasmvnc.yaml
     chmod a+r /opt/cert.pem /opt/key.pem
     mkdir -p /run/user
     chmod 1777 /run/user
+    mkdir -p /etc/xdg/autostart
     {% if "Y" in self.but_can_it_run_doom %}
-    apt-get -y update
+    apt-get update
     apt-get install -y chocolate-doom doom-wad-shareware prboom-plus freedoom
+    echo "[Desktop Entry]\nType=Application\nExec=/usr/games/chocolate-doom\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName=Chocolate Doom\nComment=Start Chocolate Doom automatically" > /etc/xdg/autostart/chocolate-doom.desktop
     {% endif %}
     {% if "Y" in self.single_app %}
     apt-get remove -y xfce4-panel

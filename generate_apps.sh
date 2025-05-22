@@ -59,6 +59,29 @@ gen_template() {
                          to an interactive batch job."' bc_"${app}"/manifest.yml
 }
 
+gen_container() {
+  app_name=$1
+  app_version=$2
+  mkdir -p "${CONTAINER_REPOS}/${app_name}"
+    if [ "${CONTAINER}" = "docker" ]; then
+      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
+    elif [ "${CONTAINER}" = "singularity" ]; then
+      # Make sure we don't overwrite the container
+      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+        echo "Singularity container already exists, skipping"
+      else
+        singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
+        echo "Done building Singularity container"
+      fi
+    fi
+    if [ -f "bc_${app_name}/form.yml" ]; then
+      yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+    fi
+    if [ -f "bc_${app_name}_gui/form.yml" ]; then
+      yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+    fi
+}
+
 ########################################################################################################################
 # DOOM
 ########################################################################################################################
@@ -76,59 +99,7 @@ build_doom() {
       --kasmvnc de=xfce kasm_distro="noble" but_can_it_run_doom="Y" \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-    mkdir -p "${CONTAINER_REPOS}/${app_name}"
-    if [ "${CONTAINER}" = "docker" ]; then
-      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
-    elif [ "${CONTAINER}" = "singularity" ]; then
-      # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-        echo "Singularity container already exists, skipping"
-      else
-        singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
-        echo "Done building Singularity container"
-      fi
-    fi
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
-  done
-}
-
-
-
-########################################################################################################################
-# Wolfenstein 3D
-########################################################################################################################
-build_wolf3d() {
-  app_name="wolf3d"
-  WOLF_VERSION=($(date +%Y%m%d))
-  gen_template "${app_name}" "Wolfenstein 3D (Shell)" "Wolfenstein"
-  gen_template "${app_name}_gui" "Wolfenstein (GUI)" "Wolfenstein (GUI)" "fa://gamepad"
-  for app_version in "${WOLF_VERSION[@]}"; do
-    echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
-      --pkg-manager apt \
-      --base-image ubuntu:noble \
-      --ttyd version=1.7.7 \
-      --kasmvnc de=xfce kasm_distro="noble" but_can_it_run_doom="Y" \
-      --install libgl1-mesa-glx libgl1-mesa-dri libgl1 \
-      --run "wget ..." \
-      --run "tar -xvf ..." \
-      --user nonroot \
-    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-    mkdir -p "${CONTAINER_REPOS}/${app_name}"
-    if [ "${CONTAINER}" = "docker" ]; then
-      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
-    elif [ "${CONTAINER}" = "singularity" ]; then
-      # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-        echo "Singularity container already exists, skipping"
-      else
-        singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
-        echo "Done building Singularity container"
-      fi
-    fi
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+    gen_container ${app_name} ${app_version}
   done
 }
 
@@ -150,20 +121,7 @@ build_afni() {
       --afni ubuntu_version="24" \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-    mkdir -p "${CONTAINER_REPOS}/${app_name}"
-    if [ "${CONTAINER}" = "docker" ]; then
-      docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
-    elif [ "${CONTAINER}" = "singularity" ]; then
-      # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-        echo "Singularity container already exists, skipping"
-      else
-        singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"
-        echo "Done building Singularity container"
-      fi
-    fi
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+    gen_container ${app_name} ${app_version}
   done
 }
 
@@ -198,21 +156,7 @@ build_fsl() {
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-    mkdir -p "${CONTAINER_REPOS}/${app_name}"
-    if [ "${CONTAINER}" = "docker" ]; then
-      # TODO: Build and publish Docker env
-      echo "Docker not supported"
-    elif [ "${CONTAINER}" = "singularity" ]; then
-      # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-        echo "Singularity container already exists, skipping"
-      else
-        singularity build ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
-        echo "Done building Singularity container"
-      fi
-    fi
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+    gen_container ${app_name} ${app_version}
   done
 }
 
@@ -239,20 +183,7 @@ build_spaceranger() {
     --run "rm /opt/spaceranger-3.1.3.tar.gz" \
     --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-  mkdir -p "${CONTAINER_REPOS}/${app_name}"
-  if [ "${CONTAINER}" = "docker" ]; then
-    # TODO: Build and publish Docker env
-    echo "Docker not supported"
-  elif [ "${CONTAINER}" = "singularity" ]; then
-    # Make sure we don't overwrite the container
-    if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-      echo "Singularity container already exists, skipping"
-    else
-      singularity build ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
-      echo "Done building Singularity container"
-    fi
-  fi
-  yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
+  gen_container ${app_name} ${app_version}
   sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/spaceranger/bin"@' bc_${app_name}/template/script.sh.erb
 }
 
