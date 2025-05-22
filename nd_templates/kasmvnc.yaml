@@ -35,6 +35,7 @@ binaries:
         if [ -z "$XSTARTUP" ]; then
           XSTARTUP="/etc/X11/Xsession";
         fi
+        export $(dbus-launch)
         /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" -disableBasicAuth $XVNC_OPTIONS
         exit 0
       but_can_it_run_doom: "NO"
