@@ -1,0 +1,21 @@
+---
+name: rstudio
+url: https://rocker-project.org/
+binaries:
+  urls:
+    latest: https://hub.docker.com/r/rocker/rstudio
+  arguments:
+    optional:
+      version: "4.4.1"
+      addons: ""
+  dependencies:
+    yum:
+      - tmux
+  instructions: |
+    {{ self.install_dependencies() }}
+    {% if self.addons %}
+    install2.r --error --skipinstalled --ncpus -1 {{ self.addons }}
+    rm -rf /tmp/downloaded_packages
+    {% endif %}
+  env:
+    TZ: "America/New_York"

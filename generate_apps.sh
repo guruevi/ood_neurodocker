@@ -126,6 +126,27 @@ build_afni() {
 }
 
 ########################################################################################################################
+# RSTUDIO
+########################################################################################################################
+build_rstudio() {
+  app_name="rstudio"
+  RSTUDIO_VERSIONS=('4.4.1' '4.3.0')
+  gen_template ${app_name} "RStudio (Shell)" "Servers"
+  gen_template "${app_name}_gui" "RStudio (GUI)" "Servers"
+  for app_version in "${RSTUDIO_VERSIONS[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+      --pkg-manager apt \
+      --base-image rocker/ml-verse:${app_version} \
+      --ttyd version=1.7.7 \
+      --rstudio addons="" \
+      --user rstudio \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    gen_container ${app_name} ${app_version}
+  done
+}
+
+########################################################################################################################
 # FSL
 ########################################################################################################################
 build_fsl() {
@@ -232,8 +253,8 @@ build_matlab() {
   base_repo="mathworks/matlab-deps"
 
   MATLAB_VERSIONS=('R2024a' 'R2023b' 'R2023a' 'R2022b' 'R2022a' 'R2021b' 'R2021a' 'R2020b' 'R2020a')
-  gen_template "matlab" "MATLAB (Shell)" "Image Processing" "fa://cogs"
-  gen_template "matlab_gui" "MATLAB (GUI)" "Image Processing" "fa://cogs"
+  gen_template "matlab" "MATLAB (Shell)" "Servers" "fa://cogs"
+  gen_template "matlab_gui" "MATLAB (GUI)" "Servers" "fa://cogs"
   echo "Building MATLAB"
 
   for app_version in "${MATLAB_VERSIONS[@]}"; do
