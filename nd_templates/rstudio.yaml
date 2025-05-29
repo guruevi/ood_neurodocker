@@ -7,7 +7,7 @@ binaries:
   arguments:
     optional:
       version: "4.4.1"
-      addons: ""
+      addons: "renv"
   dependencies:
     yum:
       - tmux

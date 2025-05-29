@@ -138,8 +138,8 @@ build_rstudio() {
     neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image rocker/ml-verse:${app_version} \
-      --ttyd version=1.7.7 \
-      --rstudio addons="" \
+      --ttyd version="1.7.7" \
+      --rstudio version="${app_version}" \
       --user rstudio \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}

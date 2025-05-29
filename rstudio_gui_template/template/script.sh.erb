@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps:/opt/ood_apps"
+mkdir $(pwd)/run
+export SINGULARITY_BIND="/mnt,/tmp,/run,$(pwd)/run:/var/run,/opt/ood_apps:/opt/ood_apps"
 # Set singularity environment variables
 export SINGULARITYENV_USER="${USER}"
 export SINGULARITYENV_PASSWORD="${password}"
