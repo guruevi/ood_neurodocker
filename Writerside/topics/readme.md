@@ -5,9 +5,30 @@ It was initially designed by the ReproNim repository to create Docker images for
 However the concept has been very useful to create any Docker image for OpenOnDemand.
 
 # Getting started
+## Short version:
 Read generate_apps.sh
 source generate_apps.sh
 Call a function to generate a Docker image for OpenOnDemand
+
+## Functional version:
+1. Clone the repository into your RubyMine IDE
+1. Create a Python virtual environment (slightly optional but recommended):
+   - `python3 -m venv venv`
+   - `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
+1. Install the dependencies:
+   - `pip install -r requirements.txt`
+1. Make sure Neurodocker and YQ are installed and in your PATH:
+   - `neurodocker --version`
+   - `yq --version`
+1. Set the environment variable to generate a Docker image for OpenOnDemand:
+   - `export CONTAINER=docker`
+1. Source the script to generate the Docker image:
+   - `source generate_apps.sh`
+1. Build the Docker image:
+   - `build_doom`
+1. IF that works, you can now edit generate_apps.sh to add more applications or modify the existing ones.
+1. Read the neurodocker documentation to understand how to use templates which are in nd_templates/
+1. Go back to source the script if you make changes to generate_apps.sh
 
 # Making more images
 Copy/paste from another app, modify the various variables to your liking

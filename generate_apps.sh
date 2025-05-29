@@ -131,7 +131,7 @@ build_afni() {
 build_rstudio() {
   app_name="rstudio"
   RSTUDIO_VERSIONS=('4.4.1' '4.3.0')
-  gen_template ${app_name} "RStudio (Shell)" "Servers"
+  gen_template ${app_name} "R (Shell)" "Servers"
   gen_template "${app_name}_gui" "RStudio (GUI)" "Servers"
   for app_version in "${RSTUDIO_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
