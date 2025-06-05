@@ -16,6 +16,9 @@
   end
 
   memory = num_cores * (memory_multiplier.blank? ? 1024 : memory_multiplier.to_i)
+  if memory > 261144
+    memory = 261144 # Limit to slightly less than 256GB
+  end
   slurm_args = []
   if gpu_vram > 0
     # You need to have at least the amount of VRAM accessible in RAM

@@ -1,0 +1,33 @@
+---
+# Instructions to install ANTs (https://github.com/ANTsX/ANTs)
+
+name: ants
+url: http://stnava.github.io/ANTs/
+binaries:
+    arguments:
+        required:
+        -   version
+        optional:
+            install_path: /opt/ants-{{ self.version }}
+    urls:
+    # Official binaries are provided as of 2.4.1 (https://github.com/ANTsX/ANTs/releases)
+        2.6.0: https://github.com/ANTsX/ANTs/releases/download/v2.6.0/ants-2.6.0-ubuntu-24.04-X64-gcc.zip
+        2.5.4: https://github.com/ANTsX/ANTs/releases/download/v2.5.4/ants-2.5.4-ubuntu-24.04-X64-gcc.zip
+        2.5.3: https://github.com/ANTsX/ANTs/releases/download/v2.5.3/ants-2.5.3-ubuntu-24.04-X64-gcc.zip
+    dependencies:
+        apt:
+        -   ca-certificates
+        -   curl
+        -   unzip
+        yum:
+        -   curl
+        -   unzip
+    env:
+        ANTSPATH: '/opt/ants-{{ self.version }}'
+        PATH: '/opt/ants-{{ self.version }}:$PATH'
+    instructions: |
+        {{ self.install_dependencies() }}
+        echo "Downloading ANTs ..."
+        curl -fsSL -o ants.zip {{ self.urls[self.version] }}
+        unzip ants.zip -d /opt
+        rm ants.zip
