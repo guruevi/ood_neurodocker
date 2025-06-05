@@ -11,7 +11,7 @@ attributes:
     step: 1
     value: 2
     label: "Number of cores"
-    help: "Enter a value between 1 and 8"
+    help: "Enter a value between 1 and 64"
   gpu:
     required: true
     widget: "select"
