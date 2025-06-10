@@ -104,6 +104,27 @@ build_doom() {
 }
 
 ########################################################################################################################
+# ANTS
+########################################################################################################################
+build_ants() {
+  app_name="ants"
+  APP_VERSIONS=($(date +%Y%m%d))
+  gen_template "${app_name}" "ANTS (Shell)" "ANTS"
+  #gen_template "${app_name}_gui" "ANTS (GUI)" "ANTS (GUI)"
+  for app_version in "${APP_VERSIONS[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+      --pkg-manager apt \
+      --base-image ubuntu:noble \
+      --ttyd version=1.7.7 \
+      --ants version=2.6.0 \
+      --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    gen_container ${app_name} ${app_version}
+  done
+}
+
+########################################################################################################################
 # AFNI
 ########################################################################################################################
 build_afni() {
@@ -140,6 +161,7 @@ build_rstudio() {
       --base-image rocker/ml-verse:${app_version} \
       --ttyd version="1.7.7" \
       --rstudio version="${app_version}" \
+      --ants version="2.4.0" \
       --user rstudio \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
