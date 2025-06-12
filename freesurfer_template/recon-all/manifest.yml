@@ -1,0 +1,9 @@
+---
+name: FreeSurfer - recon-all
+icon: fa://gear
+category: FreeSurfer
+subcategory: Recon-All
+role: batch_connect
+description: |
+  Run all steps of the FreeSurfer recon-all pipeline.
+

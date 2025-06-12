@@ -1,0 +1,155 @@
+---
+title: "fMRIPrep (Shell)"
+cluster: "general"
+attributes:
+  bc_account: "fmriprep"
+  bc_queue: "general"
+  cores:
+    widget: "number_field"
+    max: 8
+    min: 4
+    step: 4
+    value: 4
+    label: "Number of cores"
+    help: "Select 4 or 8 cores"
+  gpu: 0
+  app_version:
+    required: true
+    widget: "select"
+    label: "version:"
+    help: |
+      Select the version of this app you would like to use.
+    options:
+  memory_multiplier: 2048
+  bids_dir:
+    required: true
+    widget: "text_field"
+    label: "BIDS Directory"
+    help: "The root folder of a BIDS valid dataset (sub-XXXXX folders should be found at the top level in this folder)."
+  output_dir:
+    required: true
+    widget: "text_field"
+    label: "Output Directory"
+    help: "The output path for the outcomes of preprocessing and visual reports"
+  skip_bids_validation:
+    widget: "checkbox"
+    label: "Skip BIDS Validation"
+    help: "Assume the input dataset is BIDS compliant and skip the validation."
+  participant_label:
+    widget: "text_field"
+    label: "Participant Label"
+    help: "A space delimited list of participant identifiers or a single identifier (the sub- prefix can be removed)."
+  task_id:
+    widget: "text_field"
+    label: "Task ID"
+    help: "Select a specific task to be processed."
+  echo_idx:
+    widget: "number_field"
+    label: "Echo Index"
+    help: "Select a specific echo to be processed in a multiecho series."
+  bids_filter_file:
+    widget: "text_field"
+    label: "BIDS Filter File"
+    help: "A JSON file describing custom BIDS input filters using PyBIDS."
+  derivatives:
+    widget: "text_field"
+    label: "Derivatives Path"
+    help: "Search PATH(s) for pre-computed derivatives."
+  bids_database_dir:
+    widget: "text_field"
+    label: "BIDS Database Directory"
+    help: "Path to a PyBIDS database folder for faster indexing."
+  use_plugin:
+    widget: "text_field"
+    label: "Nipype Plugin File"
+    help: "Nipype plugin configuration file."
+  anat_only:
+    widget: "checkbox"
+    label: "Anatomical Workflows Only"
+    help: "Run anatomical workflows only."
+  level:
+    widget: "select"
+    label: "Processing Level"
+    help: "Processing level; may be 'minimal', 'resampling', or 'full'."
+    options:
+      - [ "full", "full" ]
+      - [ "resampling", "resampling" ]
+      - [ "minimal", "minimal" ]
+  boilerplate_only:
+    widget: "checkbox"
+    label: "Boilerplate Only"
+    help: "Generate boilerplate only."
+  reports_only:
+    widget: "checkbox"
+    label: "Reports Only"
+    help: "Only generate reports, don’t run workflows."
+  ignore:
+    widget: "text_field"
+    label: "Ignore Aspects"
+    help: "Ignore selected aspects of the input dataset {fieldmaps,slicetiming,sbref,t2w,flair,fmap-jacobian} ..."
+  force:
+    widget: "text_field"
+    label: "Force Processing Choices"
+    help: "Force selected processing choices {bbr,no-bbr,syn-sdc,fmap-jacobian} ..."
+  output_spaces:
+    widget: "text_field"
+    label: "Output Spaces"
+    help: "Standard and non-standard spaces to resample anatomical and functional images to."
+  longitudinal:
+    widget: "checkbox"
+    label: "Longitudinal Dataset"
+    help: "Treat dataset as longitudinal - may increase runtime."
+  bold2anat_init:
+    widget: "select"
+    label: "BOLD to Anatomical Coregistration Method"
+    help: "Method of initial BOLD to anatomical coregistration."
+    options:
+      - [ "auto", "auto" ]
+      - [ "t1w", "t1w" ]
+      - [ "t2w", "t2w" ]
+      - [ "header", "header" ]
+  bold2anat_dof:
+    widget: "select"
+    label: "Degrees of Freedom for BOLD to Anatomical"
+    help: "Degrees of freedom when registering BOLD to anatomical images."
+    options:
+      - [ "6", "6" ]
+      - [ "9", "9" ]
+      - [ "12", "12" ]
+  slice_time_ref:
+    widget: "number_field"
+    max: 1
+    min: 0
+    step: 0.1
+    value: 0.5
+    label: "Slice Time Reference"
+    help: "The time of the reference slice to correct BOLD values to."
+  dummy_scans:
+    widget: "number_field"
+    label: "Dummy Scans"
+    help: "Number of nonsteady-state volumes."
+  random_seed:
+    widget: "number_field"
+    label: "Random Seed"
+    help: "Initialize the random seed for the workflow."
+  output_layout:
+    widget: "select"
+    label: "Output Layout"
+    help: "Organization of outputs."
+    options:
+      - [ "bids", "bids" ]
+      - [ "legacy", "legacy" ]
+  verbose:
+    widget: "checkbox"
+    label: "Verbose Logging"
+    help: "Increases log verbosity for each occurrence."
+
+form:
+  - app_version
+  - cores
+  - gpu
+  - bc_account
+  - bc_num_hours
+  - bc_queue
+  - bc_email_on_started
+  - memory_multiplier

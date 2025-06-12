@@ -1,0 +1,8 @@
+---
+name: fMRIPrep
+icon: fa://brain
+category: Batch Apps
+subcategory: MRI Analysis
+role: batch_connect
+description: |-
+  This will launch an interactive job for fMRIPrep with specified input and output directories.

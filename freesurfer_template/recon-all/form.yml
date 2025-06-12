@@ -1,0 +1,37 @@
+---
+title: "FreeSurfer - recon-all"
+cluster: "general"
+attributes:
+  bc_account: "freesurfer"
+  bc_queue: "general"
+  freesurfer_version:
+    required: true
+    widget: "select"
+    label: "FreeSurfer version:"
+    help: |
+      Select the version of Freesurfer you would like to use.
+    options:
+      - [ "7.4.1", "7.4.1" ]
+  input_image:
+    required: true
+    widget: "text_field"
+    label: "Input"
+    help: "Enter the path to the input image. This could be a single DICOM from the T1 MRI series or a single NIFTI file from series. [Browse path](https://ood.urmc-sh.rochester.edu/pun/sys/dashboard/files/fs/mnt/nfs){:target='_blank'}"
+  subject_id:
+    required: true
+    widget: "text_field"
+    label: "Subject ID"
+    help: "The FreeSurfer subject identification string which doubles as the name of the reconstruction root directory for this subject."
+  extra_args:
+    required: false
+    widget: "text_field"
+    label: "Expert Options"
+    help: "Enter any additional [Expert Preferences](https://surfer.nmr.mgh.harvard.edu/fswiki/recon-all#ExpertPreferences)"
+
+form:
+  - freesurfer_version
+  - input_image
+  - subject_id
+  - extra_args
+  - bc_account
+  - bc_queue

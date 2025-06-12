@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+export SINGULARITY_BIND="/mnt,/run"
+export SINGULARITYENV_SUBJECTS_DIR=$(pwd)/subjects
+export SINGULARITYENV_FREESURFER_HOME=/usr/local/freesurfer/<%= context.freesurfer_version %>
+mkdir -p ${SINGULARITYENV_SUBJECTS_DIR}
+# Copy fsaverage to the results directory for posterity
+# singularity exec "${SINGULARITY_OPTIONS}" /opt/ood_apps/images/freesurfer/freesurfer_<%= context.freesurfer_version %>.sif /usr/bin/rsync -a /usr/local/freesurfer/<%= context.freesurfer_version %>/subjects/fsaverage .
+singularity exec /opt/ood_apps/images/freesurfer/freesurfer_<%= context.freesurfer_version %>.sif /usr/local/freesurfer/<%= context.freesurfer_version %>/bin/recon-all -all -s <%= context.subject_id %> -i <%= context.input_image %> -parallel -openmp 8 <%= context.extra_args %>

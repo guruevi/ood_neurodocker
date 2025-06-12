@@ -308,3 +308,23 @@ build_matlab() {
     yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
   done
 }
+
+########################################################################################################################
+# fMRIprep
+########################################################################################################################
+build_fmriprep() {
+  app_name="fmriprep"
+  FMRIPREP_VERSIONS=('25.1.1' '25.1.0' '25.0.0') # Add more versions as needed
+  gen_template "${app_name}" "fMRIPrep" "MRI Analysis" "fa://brain"
+
+  for app_version in "${FMRIPREP_VERSIONS[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+      --pkg-manager apt \
+      --base-image nipreps/fmriprep:${app_version} \
+      --ttyd version=1.7.7 \
+      --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    gen_container ${app_name} ${app_version}
+  done
+}
