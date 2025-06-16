@@ -334,8 +334,7 @@ build_fmriprep() {
 ########################################################################################################################
 build_pymol() {
   app_name="pymol"
-  # https://storage.googleapis.com/pymol-storage/installers/PyMOL-3.1.6.1_appveyor2641-Linux-x86_64-py310.tar.bz2
-  PYMOL_VERSIONS=('3.1.6.1') # Add more versions as needed
+  PYMOL_VERSIONS=('2.5.0') # Currently 2.5 is in Ubuntu repos
   gen_template "${app_name}" "PyMOL" "Omics" "fa://molecule"
   gen_template "${app_name}_gui" "PyMOL (GUI)" "Omics" "fa://molecule"
   for app_version in "${PYMOL_VERSIONS[@]}"; do
