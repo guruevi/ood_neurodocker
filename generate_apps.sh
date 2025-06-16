@@ -328,3 +328,26 @@ build_fmriprep() {
     gen_container ${app_name} ${app_version}
   done
 }
+
+########################################################################################################################
+# PyMOL
+########################################################################################################################
+build_pymol() {
+  app_name="pymol"
+  # https://storage.googleapis.com/pymol-storage/installers/PyMOL-3.1.6.1_appveyor2641-Linux-x86_64-py310.tar.bz2
+  PYMOL_VERSIONS=('3.1.6.1') # Add more versions as needed
+  gen_template "${app_name}" "PyMOL" "Omics" "fa://molecule"
+  gen_template "${app_name}_gui" "PyMOL (GUI)" "Omics" "fa://molecule"
+  for app_version in "${PYMOL_VERSIONS[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+      --pkg-manager apt \
+      --base-image ubuntu:noble \
+      --ttyd version=1.7.7 \
+      --kasmvnc de=xfce kasm_distro="noble" \
+      --install pymol \
+      --user nonroot \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    gen_container ${app_name} ${app_version}
+  done
+}

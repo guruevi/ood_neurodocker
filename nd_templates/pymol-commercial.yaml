@@ -1,0 +1,45 @@
+---
+# Instructions to install PyMOL (https://pymolwiki.org/index.php/Linux_Install)
+
+name: pymol
+url: https://pymol.org/
+binaries:
+    arguments:
+        required:
+        - version
+        optional:
+            install_path: /opt/pymol-{{ self.version }}
+    urls:
+        3.1.6.1: https://storage.googleapis.com/pymol-storage/installers/PyMOL-3.1.6.1_appveyor2641-Linux-x86_64-py310.tar.bz2
+        2.6.2: https://storage.googleapis.com/pymol-storage/installers/PyMOL-2.6.2_appveyor1945-Linux-x86_64-py311.tar.bz2
+    dependencies:
+        apt:
+        - build-essential
+        - python3-dev
+        - libglew-dev
+        - libpng-dev
+        - libfreetype6-dev
+        - libxml2-dev
+        - libmsgpack-dev
+        - python3-pyqt5.qtopengl
+        - libglm-dev
+        - libnetcdf-dev
+        yum:
+        - gcc
+        - gcc-c++
+        - kernel-devel
+        - python3-devel
+        - glew-devel
+        - PyQt5
+        - msgpack-devel
+        - freeglut-devel
+        - libpng-devel
+        - freetype-devel
+        - libxml2-devel
+        - glm-devel
+    instructions: |
+        {{ self.install_dependencies() }}
+        echo "Downloading PyMOL ..."
+        curl -fsSL -o pymol.tar.bz2 {{ self.urls[self.version] }}
+        tar -xvjf pymol.tar.bz2 -C {{ self.install_path }} --strip-components 1
+        rm pymol.tar.bz2
