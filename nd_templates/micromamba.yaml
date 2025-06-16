@@ -6,6 +6,7 @@ binaries:
     arguments:
         optional:
             install_path: /opt/conda
+            version: 2.3.0-1
             mamba_dependencies: ""
     urls:
         latest: https://micro.mamba.pm/api/micromamba/linux-64/latest
@@ -15,10 +16,14 @@ binaries:
         TZ: America/New_York
     dependencies: {}
     instructions: |
-        curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj /bin/micromamba
-        mkdir /.repro-bins
+        curl "https://github.com/mamba-org/micromamba-releases/releases/download/{{ self.version }}/micromamba-linux-64" -o /bin/micromamba -fsSL --compressed
+        chmod +x /bin/micromamba
+        {% if self.mamba_dependencies %}
+        mkdir -p /.repro-bins
         cd /.repro-bins
         DATE=$(date +%s)
-        echo "${self.mamba_dependencies}" > /.repro-bins/micromamba_deps_${DATE}.yml
+        echo "{{ self.mamba_dependencies }}" > /.repro-bins/micromamba_deps_${DATE}.yml
+        export MAMBA_ROOT_PREFIX="{{ self.install_path }}"
         micromamba create -y -f /.repro-bins/micromamba_deps_${DATE}.yml
         micromamba clean -a -y
+        {% endif %}

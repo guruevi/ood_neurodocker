@@ -1,0 +1,35 @@
+---
+# Instructions to install dcm2niix.
+
+name: dcm2niix
+url: https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage
+binaries:
+    arguments:
+        required:
+        -   version
+        optional:
+            install_path: /opt/dcm2niix-{{ self.version }}
+    urls:
+        latest: https://github.com/rordenlab/dcm2niix/releases/latest/download/dcm2niix_lnx.zip
+        v1.0.20250506: https://github.com/rordenlab/dcm2niix/releases/download/v1.0.20250506/dcm2niix_lnx.zip
+        v1.0.20201102: https://github.com/rordenlab/dcm2niix/releases/download/v1.0.20201102/dcm2niix_lnx.zip
+        v1.0.20200331: https://github.com/rordenlab/dcm2niix/releases/download/v1.0.20200331/dcm2niix_lnx.zip
+        v1.0.20190902: https://github.com/rordenlab/dcm2niix/releases/download/v1.0.20190902/dcm2niix_lnx.zip
+    dependencies:
+        apt:
+        -   ca-certificates
+        -   curl
+        -   unzip
+        yum:
+        -   curl
+        -   unzip
+    env:
+        PATH: '{{ self.install_path }}:$PATH'
+    instructions: |
+        {{ self.install_dependencies() }}
+        mkdir -p {{ self.install_path }}
+        cd {{ self.install_path }}
+        curl -fsSL -o dcm2niix.zip {{ self.urls[self.version] }}
+        unzip dcm2niix.zip
+        rm dcm2niix.zip
+        chmod +x dcm2niix

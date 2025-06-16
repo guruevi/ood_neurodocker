@@ -12,6 +12,8 @@ binaries:
     bionic: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_bionic_1.3.1_amd64.deb
     google-chrome: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   arguments:
+    required:
+      - kasm_distro
     optional:
       de: xfce
       kasm_startup_script: |
@@ -40,7 +42,6 @@ binaries:
         exit 0
       but_can_it_run_doom: "NO"
       single_app: "NO"
-      kasm_distro: "noble"
   dependencies:
     apt:
       - git
@@ -90,10 +91,10 @@ binaries:
     {% if "Y" in self.but_can_it_run_doom %}
     apt-get update
     apt-get install -y chocolate-doom doom-wad-shareware prboom-plus freedoom
-    echo "[Desktop Entry]\nType=Application\nExec=/usr/games/chocolate-doom\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName=Chocolate Doom\nComment=Start Chocolate Doom automatically" > /etc/xdg/autostart/chocolate-doom.desktop
     {% endif %}
-    {% if "Y" in self.single_app %}
-    apt-get remove -y xfce4-panel
+    {% if self.single_app != "NO" %}
+    echo "[Desktop Entry]\nType=Application\nExec={{ self.single_app }}\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName={{ self.single_app.split('/')[-1] }}\nComment=Start {{ self.single_app.split('/')[-1] }}" > /etc/xdg/autostart/{{ self.single_app.split('/')[-1] }}.desktop
+    cp /etc/xdg/autostart/{{ self.single_app.split('/')[-1] }}.desktop /usr/share/applications
     {% endif %}
     printf '{{ self.kasm_startup_script }}' | sed 's/[[:space:]]*&& /\n/g' > /opt/kasm_startup.sh
     chmod +x /opt/kasm_startup.sh

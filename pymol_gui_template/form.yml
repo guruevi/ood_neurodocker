@@ -12,7 +12,7 @@ attributes:
     value: 2
     label: "Number of cores"
     help: "Enter a value between 1 and 8"
-  gpu: 6
+  gpu: 0
   app_version:
     required: true
     widget: "select"
