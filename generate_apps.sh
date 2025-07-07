@@ -14,7 +14,6 @@ fi
 if [ -z "${SINGULARITY_CACHEDIR}" ]; then
   SINGULARITY_CACHEDIR="/opt/ood_apps/images/.cache"
 fi
-# APPS="afni afni_gui ants bids_validator cat12 convert3d dcm2niix freesurfer fsl fsl_gui jq matlabmcr minc miniconda mricron mrtrix3 ndfreeze neurodebian niftyreg petpvc spm12 vnc spaceranger"
 
 if [ "$CONTAINER" = "singularity" ]; then
   CONTAINER_FILE="def"
@@ -30,6 +29,18 @@ if ! command -v yq &> /dev/null; then
   echo "yq could not be found"
   exit 1
 fi
+
+# Test if we have a global pip config file
+if [ -f /etc/pip.conf ]; then
+  GLOBAL_PIP_CONF="/etc/pip.conf"
+elif [ -f /etc/xdg/pip/pip.conf ]; then
+  GLOBAL_PIP_CONF="/etc/xdg/pip/pip.conf"
+elif [ -f /Library/Application\ Support/pip/pip.conf ]; then
+  GLOBAL_PIP_CONF="/Library/Application Support/pip/pip.conf"
+elif [ -f "$HOME/.config/pip/pip.conf" ]; then
+  GLOBAL_PIP_CONF="$HOME/.config/pip/pip.conf"
+fi
+GLOBAL_PIP_CONF=`cat "${GLOBAL_PIP_CONF}"`
 
 gen_template() {
   app=$1
@@ -151,20 +162,49 @@ build_afni() {
 ########################################################################################################################
 build_rstudio() {
   app_name="rstudio"
-  RSTUDIO_VERSIONS=('4.4.1' '4.3.0')
+
+  # 4.5 is not yet available in the rocker/ml-verse images
+  # When changing RStudio versions, also update the bioconductor version
+  RSTUDIO_VERSIONS=('4.5.0' '4.4.1' '4.3.0')
+  declare -A BIOCONDUCTOR_VERSIONS=(
+    ["4.5.0"]="3.21"
+    ["4.4.1"]="3.20"
+    ["4.3.0"]="3.17"
+  )
+  ML_VERSE_VERSIONS=("4.4.1" "4.3.0")
+
   gen_template ${app_name} "R (Shell)" "Servers"
   gen_template "${app_name}_gui" "RStudio (GUI)" "Servers"
   for app_version in "${RSTUDIO_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
-      --pkg-manager apt \
-      --base-image rocker/ml-verse:${app_version} \
-      --ttyd version="1.7.7" \
-      --rstudio version="${app_version}" \
-      --ants version="2.4.0" \
-      --user rstudio \
-    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-    gen_container ${app_name} ${app_version}
+    for variant in "r-ver" "ml-verse"; do
+      # Generate the container definition
+      if ! docker manifest inspect docker.io/rocker/${variant}:${app_version} > /dev/null 2>&1; then
+        echo "Does not appear that rocker/${variant}:${app_version} is available, skipping"
+        continue
+      fi
+      base_image="rocker/${variant}:${app_version}"
+      for with_libs in "" "-Seurat"; do
+        # BioConductor is small enough, always included it
+        bioconductor="${BIOCONDUCTOR_VERSIONS[$app_version]}"
+        # Check if we are Seurat
+        if [[ "$with_libs" = *Seurat* ]]; then
+          seurat="Y"
+        else
+          seurat="N"
+        fi
+        echo "Building ${app_name}_${app_version} (${variant})"
+        neurodocker generate --template-path nd_templates "${CONTAINER}" \
+          --pkg-manager apt \
+          --base-image $base_image \
+          --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
+          --ttyd version="1.7.7" \
+          --rstudio addons="remotes" seurat="$seurat" bioconductor="$bioconductor" rprofile='options(BioC_mirror = "https://smdartifactory.urmc-sh.rochester.edu/artifactory/bioconductor")\noptions(repos = "https://smdartifactory.urmc-sh.rochester.edu/artifactory/cran-remote")' \
+          --user rstudio \
+        > "bc_${app_name}/${app_name}_${app_version}-${variant}${with_libs}.${CONTAINER_FILE}"
+        gen_container ${app_name} ${app_version}-${variant}${with_libs}
+      done
+    done
   done
 }
 
@@ -214,13 +254,9 @@ build_spaceranger() {
   neurodocker generate ${CONTAINER} \
     --pkg-manager apt \
     --base-image debian:bullseye-slim \
+    --ttyd version=1.7.7 \
+    --kasmvnc de=xfce kasm_distro="bullseye" \
     --yes \
-    --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
-    --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
-              procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
-    --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
-    --run "chmod +x /usr/bin/ttyd" \
-    --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
     --copy /opt/ood_apps/spaceranger/spaceranger-3.1.3.tar.gz /opt/spaceranger-3.1.3.tar.gz \
     --run "tar -xvf /opt/spaceranger-3.1.3.tar.gz -C /opt/spaceranger" \
     --run "rm /opt/spaceranger-3.1.3.tar.gz" \
@@ -243,6 +279,7 @@ build_qupath() {
   neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
+      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
       --yes \
       --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
       --qupath version=${app_version} \
@@ -284,6 +321,7 @@ build_matlab() {
     neurodocker generate --template-path nd_templates "${CONTAINER}" \
         --pkg-manager apt \
         --base-image ${base_repo}:"${app_version}" \
+        --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
         --yes \
         --ttyd version=1.7.7 \
         --matlab version="${app_version}" \
@@ -322,6 +360,7 @@ build_fmriprep() {
     neurodocker generate --template-path nd_templates "${CONTAINER}" \
       --pkg-manager apt \
       --base-image nipreps/fmriprep:${app_version} \
+      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
       --ttyd version=1.7.7 \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
@@ -343,6 +382,7 @@ build_pymol() {
       --pkg-manager apt \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
+      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
       --kasmvnc de=xfce kasm_distro="noble" single_app="/opt/conda/envs/pymol-env/bin/pymol" \
       --micromamba mamba_dependencies="name: pymol-env\nchannels: [conda-forge]\ndependencies: [python=3.10, pip, pymol-open-source=$app_version, fretraj]" \
       --user nonroot \
