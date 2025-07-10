@@ -25,7 +25,7 @@ attributes:
     required: true
     widget: "text_field"
     label: "BIDS Directory"
-    help: "The root folder of a BIDS valid dataset (sub-XXXXX folders should be found at the top level in this folder)."
+    help: "The root folder of a BIDS valid dataset (sub-XXXXX folders should be found at the top level in this folder). [Browse path](/pun/sys/dashboard/files/fs/mnt/nfs)"
   output_dir:
     required: true
     widget: "text_field"
