@@ -221,7 +221,7 @@ form:
   - random_seed
   - output_layout
   - verbose
-  - no-submm-recon
-  - fs-no-reconall
-  - fs-no-resume
-  - fs-subjects-dir
+  - no_submm_recon
+  - fs_no_reconall
+  - fs_no_resume
+  - fs_subjects_dir
