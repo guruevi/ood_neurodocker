@@ -33,7 +33,7 @@ options << "--fs-no-resume" if context.fs_no_resume != "0"
 options << "--fs-subjects-dir #{context.fs_subjects_dir}" if context.fs_subjects_dir.present?
 options << "--fs-license-file /usr/share/freesurfer_license.txt"
 options << "--resource-monitor"
-options << "--write-graph""
+options << "--write-graph"
 
 all_options = options.join(" ")
 %>
