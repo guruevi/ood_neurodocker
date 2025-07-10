@@ -12,7 +12,7 @@ options << "--bids-database-dir #{context.bids_database_dir}" if context.bids_da
 options << "--nprocs #{context.cores.to_i}"
 options << "--mem-mb #{(context.cores.to_i * 2048) - 128}" # Leave 128MB for overhead
 options << "--use-plugin #{context.use_plugin}" if context.use_plugin.present?
-options << "--anat-only" if context.anat_only.present != "0"
+options << "--anat-only" if context.anat_only != "0"
 options << "--level #{context.level}" if context.level.present?
 options << "--boilerplate-only" if context.boilerplate_only != "0"
 options << "--reports-only" if context.reports_only != "0"
