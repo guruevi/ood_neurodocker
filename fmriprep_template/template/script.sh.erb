@@ -2,7 +2,7 @@
 <%
 
 options = []
-options << "--skip-bids-validation" if context.skip_bids_validation.present?
+options << "--skip-bids-validation" if context.skip_bids_validation != "0"
 options << "--participant-label #{context.participant_label}" if context.participant_label.present?
 options << "--task-id #{context.task_id}" if context.task_id.present?
 options << "--echo-idx #{context.echo_idx}" if context.echo_idx.present?
@@ -12,21 +12,27 @@ options << "--bids-database-dir #{context.bids_database_dir}" if context.bids_da
 options << "--nprocs #{context.cores.to_i}"
 options << "--mem-mb #{(context.cores.to_i * 2048) - 128}" # Leave 128MB for overhead
 options << "--use-plugin #{context.use_plugin}" if context.use_plugin.present?
-options << "--anat-only" if context.anat_only.present?
+options << "--anat-only" if context.anat_only.present != "0"
 options << "--level #{context.level}" if context.level.present?
-options << "--boilerplate-only" if context.boilerplate_only.present?
-options << "--reports-only" if context.reports_only.present?
+options << "--boilerplate-only" if context.boilerplate_only != "0"
+options << "--reports-only" if context.reports_only != "0"
 options << "--ignore #{context.ignore}" if context.ignore.present?
 options << "--force #{context.force}" if context.force.present?
 options << "--output-spaces #{context.output_spaces}" if context.output_spaces.present?
-options << "--longitudinal" if context.longitudinal.present?
+options << "--longitudinal" if context.longitudinal != "0"
 options << "--bold2anat-init #{context.bold2anat_init}" if context.bold2anat_init.present?
 options << "--bold2anat-dof #{context.bold2anat_dof}" if context.bold2anat_dof.present?
 options << "--slice-time-ref #{context.slice_time_ref}" if context.slice_time_ref.present?
 options << "--dummy-scans #{context.dummy_scans}" if context.dummy_scans.present?
 options << "--random-seed #{context.random_seed}" if context.random_seed.present?
 options << "--output-layout #{context.output_layout}" if context.output_layout.present?
-options << "--verbose" if context.verbose.present?
+options << "--verbose" if context.verbose != "0"
+options << "--fs-license-file /usr/share/freesurfer_license.txt"
+options << "--no-submm-recon" if context.no_submm_recon != "0"
+options << "--fs-no-reconall" if context.fs_no_reconall != "0"
+options << "--fs-no-resume" if context.fs_no_resume != "0"
+options << "--fs-subjects-dir" if context.fs_subjects_dir.present?
+
 
 all_options = options.join(" ")
 %>
@@ -37,4 +43,4 @@ SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/conda/envs/fmriprep/bin/fmriprep <%= all_options %> --work-dir $(pwd)
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/conda/envs/fmriprep/bin/fmriprep <%= all_options %> --work-dir $(pwd) <%= context.bids_dir %> <%= context.output_dir %> participant

@@ -170,6 +170,22 @@ attributes:
     widget: "check_box"
     label: "Verbose Logging"
     help: "Increases log verbosity for each occurrence."
+  no-submm-recon:
+    widget: "check_box"
+    label: "Disable Sub-Millimeter Reconstruction"
+    help: "Disable sub-millimeter (hires) reconstruction."
+  fs-no-reconall:
+    widget: "check_box"
+    label: "Disable FreeSurfer Surface Preprocessing"
+    help: "Disable FreeSurfer surface preprocessing."
+  fs-no-resume:
+    widget: "check_box"
+    label: "Import Pre-computed FreeSurfer Reconstruction Without Resuming"
+    help: "EXPERT: Import pre-computed FreeSurfer reconstruction without resuming. The user is responsible for ensuring that all necessary files are present."
+  fs-subjects-dir:
+    widget: "text_field"
+    label: "FreeSurfer Subjects Directory"
+    help: "Path to existing FreeSurfer subjects directory to reuse. (default: OUTPUT_DIR/freesurfer)"
 
 form:
   - app_version
@@ -205,3 +221,7 @@ form:
   - random_seed
   - output_layout
   - verbose
+  - no-submm-recon
+  - fs-no-reconall
+  - fs-no-resume
+  - fs-subjects-dir
