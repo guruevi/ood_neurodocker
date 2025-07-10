@@ -33,16 +33,18 @@ source:
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*;
         fi
+        localedef -i {{ self.env['LC_ALL'].split('.')[0] }} -f {{ self.env['LC_ALL'].split('.')[1] }} {{ self.env['LC_ALL'] }}
+        yum -y upgrade --refresh
+        {%- elif self.pkg_manager == "apt" %}
+        echo "Acquire::AllowInsecureRepositories "true";" >> /etc/apt/apt.conf.d/99insecure
+        apt update
+        apt -y dist-upgrade
         {%- endif %}
         {{ self.install_dependencies() }}
         {%- if self.pkg_manager == "apt" %}
         sed -i -e 's/# {{ self.env['LC_ALL'] }} UTF-8/{{ self.env['LC_ALL'] }} UTF-8/' /etc/locale.gen
         dpkg-reconfigure --frontend=noninteractive locales
         update-locale LANG="{{ self.env['LANG'] }}"
-        apt -y dist-upgrade
-        {%- elif self.pkg_manager == "yum" %}
-        localedef -i {{ self.env['LC_ALL'].split('.')[0] }} -f {{ self.env['LC_ALL'].split('.')[1] }} {{ self.env['LC_ALL'] }}
-        yum -y upgrade --refresh
         {%- endif %}
         chmod 777 /opt && chmod a+s /opt
         mkdir -p /neurodocker

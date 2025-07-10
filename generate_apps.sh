@@ -352,7 +352,7 @@ build_matlab() {
 ########################################################################################################################
 build_fmriprep() {
   app_name="fmriprep"
-  FMRIPREP_VERSIONS=('25.1.1' '25.1.0' '25.0.0') # Add more versions as needed
+  FMRIPREP_VERSIONS=('25.1.3' '24.1.1' '23.2.3' '22.1.1' ) # Add more versions as needed
   gen_template "${app_name}" "fMRIPrep" "MRI Analysis" "fa://brain"
 
   for app_version in "${FMRIPREP_VERSIONS[@]}"; do
