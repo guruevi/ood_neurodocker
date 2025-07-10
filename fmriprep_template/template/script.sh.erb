@@ -31,26 +31,12 @@ options << "--work-dir #{Dir.pwd}"
 
 all_options = options.join(" ")
 %>
-# Set TMUX Environment Variables
-TMUX_SOCKET="J${SLURM_JOB_ID}.sock"
-TMUX_SESSION="J${SLURM_JOB_ID}"
-export TMUX_SOCKET TMUX_SESSION
-
 # Use Datalad to get the templateflow data: https://www.templateflow.org/usage/archive/
 export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps,/opt/ood_apps/caches/templateflow:/opt/templateflow"
-export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
-
-export SINGULARITYENV_PREPEND_PATH=""
-export SINGULARITYENV_APPEND_PATH=""
-
+export SINGULARITY_TEMPLATEFLOW_HOME="/opt/templateflow"
 SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
 cd "${HOME}"
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif \
-  ttyd -W -p "$port" -b "/node/${host}/${port}" -c "ttyd:${password}" -w "$HOME" \
-  -t 'cursorStyle=bar' \
-	-t 'cursorBlink=true' \
-	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
-  /opt/conda/bin/fmriprep <%= all_options %>
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/conda/bin/fmriprep <%= all_options %>

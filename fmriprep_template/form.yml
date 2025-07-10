@@ -92,9 +92,36 @@ attributes:
     label: "Force Processing Choices"
     help: "Force selected processing choices {bbr,no-bbr,syn-sdc,fmap-jacobian} ..."
   output_spaces:
-    widget: "text_field"
+    widget: "select"
     label: "Output Spaces"
     help: "Standard and non-standard spaces to resample anatomical and functional images to."
+    options:
+      # These are the standards from TemplateSpaces (https://fmriprep.org/en/stable/spaces.html)
+      - [ "MNI152NLin2009cAsym", "MNI152NLin2009cAsym" ]
+      - [ "Fischer344", "Fischer344" ]
+      - [ "MNI152Lin", "MNI152NLin" ]
+      - [ "MNI152NLin2009aAsym", "MNI152NLin2009aAsym" ]
+      - [ "MNI152NLin2009aSym", "MNI152NLin2009aSym" ]
+      - [ "MNI152NLin2009bAsym", "MNI152NLin2009bAsym" ]
+      - [ "MNI152NLin2009bSym", "MNI152NLin2009bSym" ]
+      - [ "MNI152NLin2009cSym", "MNI152NLin2009cSym" ]
+      - [ "MNI152NLin6Asym", "MNI152NLin6Asym" ]
+      - [ "MNI152NLin6Sym", "MNI152NLin6Sym" ]
+      - [ "MNI305", "MNI305" ]
+      - [ "MNIColin27", "MNIColin27" ]
+      - [ "MNIInfant", "MNIInfant" ]
+      - [ "MNIPediatricAsym", "MNIPediatricAsym" ]
+      - [ "MouseIn", "MouseIn" ]
+      - [ "NKI", "NKI" ]
+      - [ "NMT31Sym", "NMT31Sym" ]
+      - [ "OASIS30ANTs", "OASIS30ANTs" ]
+      - [ "PNC", "PNC" ]
+      - [ "RESILIENT", "RESILIENT" ]
+      - [ "UNCInfant", "UNCInfant" ]
+      - [ "VALiDATe29", "VALiDATe29" ]
+      - [ "WHS", "WHS" ]
+      - [ "fsLR", "fsLR" ]
+      - [ "fsaverage", "fsaverage" ]
   longitudinal:
     widget: "check_box"
     label: "Longitudinal Dataset"
