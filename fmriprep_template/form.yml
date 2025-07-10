@@ -153,3 +153,28 @@ form:
   - bc_queue
   - bc_email_on_started
   - memory_multiplier
+  - bids_dir
+  - output_dir
+  - skip_bids_validation
+  - participant_label
+  - task_id
+  - echo_idx
+  - bids_filter_file
+  - derivatives
+  - bids_database_dir
+  - use_plugin
+  - anat_only
+  - level
+  - boilerplate_only
+  - reports_only
+  - ignore
+  - force
+  - output_spaces
+  - longitudinal
+  - bold2anat_init
+  - bold2anat_dof
+  - slice_time_ref
+  - dummy_scans
+  - random_seed
+  - output_layout
+  - verbose
