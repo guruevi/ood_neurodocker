@@ -362,7 +362,7 @@ build_fmriprep() {
       --base-image nipreps/fmriprep:${app_version} \
       --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
       --ttyd version=1.7.7 \
-      --copy $(pwd)/${app_name}/build/src/license.txt /usr/share/freesurfer_license.txt \
+      --copy $(pwd)/${app_name}_template/build/src/license.txt /usr/share/freesurfer_license.txt \
       --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
