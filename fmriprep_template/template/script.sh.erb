@@ -2,7 +2,7 @@
 <%
 
 options = []
-options << "--skip-bids-validation" if context.skip_bids_validation.present?
+options << "--skip-bids-validation" if context.skip_bids_validation != "0"
 options << "--participant-label #{context.participant_label}" if context.participant_label.present?
 options << "--task-id #{context.task_id}" if context.task_id.present?
 options << "--echo-idx #{context.echo_idx}" if context.echo_idx.present?
@@ -12,45 +12,36 @@ options << "--bids-database-dir #{context.bids_database_dir}" if context.bids_da
 options << "--nprocs #{context.cores.to_i}"
 options << "--mem-mb #{(context.cores.to_i * 2048) - 128}" # Leave 128MB for overhead
 options << "--use-plugin #{context.use_plugin}" if context.use_plugin.present?
-options << "--anat-only" if context.anat_only.present?
+options << "--anat-only" if context.anat_only != "0"
 options << "--level #{context.level}" if context.level.present?
-options << "--boilerplate-only" if context.boilerplate_only.present?
-options << "--reports-only" if context.reports_only.present?
+options << "--boilerplate-only" if context.boilerplate_only != "0"
+options << "--reports-only" if context.reports_only != "0"
 options << "--ignore #{context.ignore}" if context.ignore.present?
 options << "--force #{context.force}" if context.force.present?
 options << "--output-spaces #{context.output_spaces}" if context.output_spaces.present?
-options << "--longitudinal" if context.longitudinal.present?
+options << "--longitudinal" if context.longitudinal != "0"
 options << "--bold2anat-init #{context.bold2anat_init}" if context.bold2anat_init.present?
 options << "--bold2anat-dof #{context.bold2anat_dof}" if context.bold2anat_dof.present?
 options << "--slice-time-ref #{context.slice_time_ref}" if context.slice_time_ref.present?
 options << "--dummy-scans #{context.dummy_scans}" if context.dummy_scans.present?
 options << "--random-seed #{context.random_seed}" if context.random_seed.present?
 options << "--output-layout #{context.output_layout}" if context.output_layout.present?
-options << "--verbose" if context.verbose.present?
-options << "--work-dir #{Dir.pwd}"
+options << "--verbose" if context.verbose != "0"
+options << "--no-submm-recon" if context.no_submm_recon != "0"
+options << "--fs-no-reconall" if context.fs_no_reconall != "0"
+options << "--fs-no-resume" if context.fs_no_resume != "0"
+options << "--fs-subjects-dir #{context.fs_subjects_dir}" if context.fs_subjects_dir.present?
+options << "--fs-license-file /usr/share/freesurfer_license.txt"
+options << "--resource-monitor"
+options << "--write-graph"
 
 all_options = options.join(" ")
 %>
-# Set TMUX Environment Variables
-TMUX_SOCKET="J${SLURM_JOB_ID}.sock"
-TMUX_SESSION="J${SLURM_JOB_ID}"
-export TMUX_SOCKET TMUX_SESSION
-
 # Use Datalad to get the templateflow data: https://www.templateflow.org/usage/archive/
 export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps,/opt/ood_apps/caches/templateflow:/opt/templateflow"
-export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
-
-export SINGULARITYENV_PREPEND_PATH=""
-export SINGULARITYENV_APPEND_PATH=""
-
+export SINGULARITY_TEMPLATEFLOW_HOME="/opt/templateflow"
 SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
-cd "${HOME}"
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif \
-  ttyd -W -p "$port" -b "/node/${host}/${port}" -c "ttyd:${password}" -w "$HOME" \
-  -t 'cursorStyle=bar' \
-	-t 'cursorBlink=true' \
-	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
-  /opt/conda/bin/fmriprep <%= all_options %>
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/conda/envs/fmriprep/bin/fmriprep <%= all_options %> --work-dir $(pwd) <%= context.bids_dir %> <%= context.output_dir %> participant
