@@ -2,7 +2,6 @@
 # Set TMUX Environment Variables
 TMUX_SOCKET="J${SLURM_JOB_ID}.sock"
 TMUX_SESSION="J${SLURM_JOB_ID}"
-export TMUX_SOCKET TMUX_SESSION
 
 mkdir app_log tmp
 export SINGULARITY_BIND="/mnt,$(pwd)/app_log:/var/log/app,/tmp,/run,/opt/ood_apps"
