@@ -44,4 +44,4 @@ SINGULARITY_OPTIONS=""
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/conda/envs/fmriprep/bin/fmriprep <%= all_options %> --work-dir $(pwd) <%= context.bids_dir %> <%= context.output_dir %> participant
+singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /app/.pixi/envs/fmriprep/bin/fmriprep <%= all_options %> --work-dir $(pwd) <%= context.bids_dir %> <%= context.output_dir %> participant
