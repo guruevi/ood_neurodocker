@@ -4,23 +4,54 @@ cluster: "general"
 attributes:
   bc_account: "${app}"
   bc_queue: "general"
-  cores:
-    widget: "number_field"
-    max: 32
-    min: 1
-    step: 1
-    value: 2
-    label: "Number of cores"
-    help: "Enter a value between 1 and 32"
+  cores: 32
   app_version:
     required: true
     widget: "select"
-    label: "version:"
+    label: "Version"
     help: |
       Select the version of this app you would like to use.
     options:
   gpu: 0
-  memory_multiplier: 2048
+  memory_multiplier: 4096
+  sr_command:
+    required: true
+    widget: "select"
+    label: "Command"
+    options:
+      - [ "Count gene expression and protein expression reads from a single capture area", "count"
+
+        ]
+      - [ "Aggregate data from multiple spaceranger count runs", "aggr",
+            data-hide-sr-image: true
+      ]
+      - [ "Segment nuclei from a microscope image", "segment",
+            data-hide-sr-image: true
+      ]
+      - [ "Run Illumina demultiplexer on sample sheets that contain 10x-specific sample index sets, and generate 10x-specific quality metrics after the demultiplex.", "mkfastq",
+          data-hide-sr-image: true
+      ]
+#      - [ "Execute the count pipeline on a small test dataset.", "testrun" ]
+#      - [ "Convert feature-barcode matrices from sparse format to dense.", "mat2csv" ]
+#      - [ "Prepare a reference for use with 10x analysis software.", "mkref" ]
+#      - [ "Filter user-supplied GTF files for use as a Space Ranger-compatible genes files for mkref tool.", "mkgtf" ]
+  sr_id:
+    label: "Output Folder Name"
+    help: "A unique run id ([a-zA-Z0-9_-]+)"
+    value: ""
+  sr_output_dir:
+    label: "Output Directory"
+    help: "Output the results to this directory"
+    widget: "path_selector"
+    directory: "/mnt/nfs"
+    show_hidden: false
+    show_files: false
+  sr_image:
+    label: "Image File"
+    widget: "path_selector"
+    directory: "/mnt/nfs"
+    show_hidden: false
+    show_files: true
 form:
   - app_version
   - cores
@@ -30,4 +61,5 @@ form:
   - bc_queue
   - bc_email_on_started
   - memory_multiplier
+  - sr_command
 form_header: 10x Genomics offers pre-built human and mouse references for download. You can access those at /opt/ood_apps/spaceranger/references/

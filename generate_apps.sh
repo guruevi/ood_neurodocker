@@ -247,7 +247,6 @@ build_spaceranger() {
   for app_version in "${SPACERANGER_VERSIONS[@]}"; do
     "${ND_GEN_COMMAND[@]}" \
       --base-image debian:bullseye-slim \
-      --kasmvnc de=xfce kasm_distro="bullseye" \
       --ttyd version=1.7.7 \
       --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /.repro-bins/spaceranger-${app_version}.tar.gz \
       --run "tar -xzvf /.repro-bins/spaceranger-${app_version}.tar.gz -C /opt" \

@@ -1,9 +1,8 @@
 ---
 name: FreeSurfer - recon-all
 icon: fa://gear
-category: FreeSurfer
-subcategory: Recon-All
+category: Batch Apps
+subcategory: MRI Analysis
 role: batch_connect
 description: |
   Run all steps of the FreeSurfer recon-all pipeline.
-
