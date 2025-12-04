@@ -2,8 +2,9 @@
 Version=1
 Type=Application
 Name=FSL
+# This is a custom shell script that sources the FSL environment
 Exec=/usr/local/bin/fsl
-Icon=/usr/local/fsl/doc/images/fsl-logo.gif
+Icon=/usr/share/icons/fsl.gif
 Terminal=false
 StartupNotify=false
 Categories=Science;MRI;Neuroimaging;

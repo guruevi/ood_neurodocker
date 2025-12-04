@@ -30,3 +30,4 @@ form:
   - bc_queue
   - bc_email_on_started
   - memory_multiplier
+form_header: 10x Genomics offers pre-built human and mouse references for download. You can access those at /opt/ood_apps/spaceranger/references/

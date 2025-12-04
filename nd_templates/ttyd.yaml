@@ -5,8 +5,9 @@ binaries:
   urls:
     1.7.7: https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd
   arguments:
+    required:
+      - version
     optional:
-      version: "1.7.7"
       arch: "x86_64"
   dependencies:
     apt:

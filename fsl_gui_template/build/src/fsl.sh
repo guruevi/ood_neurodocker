@@ -1,4 +1,4 @@
-FSLDIR=/usr/local/fsl
+#!/usr/bin/env bash
+export FSLDIR="/opt/fsl-current"
 . ${FSLDIR}/etc/fslconf/fsl.sh
-PATH=${FSLDIR}/bin:${PATH}
-export FSLDIR PATH
+export PATH=${FSLDIR}/bin:${PATH}

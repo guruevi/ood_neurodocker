@@ -56,7 +56,6 @@ binaries:
       - dbus-user-session
       - libvulkan1
       - lsb-release
-      - yq
       - libgomp1
       - libunwind8
       - libxfont2
@@ -67,22 +66,24 @@ binaries:
       - liblist-moreutils-perl
       - libtry-tiny-perl
       - libdatetime-timezone-perl
-      - libasound2t64
       - libnspr4
       - libnss3
       - libdatetime-perl
+      - libasound2
+      - procps
+      - chromium
   instructions: |
     export DEBIAN_FRONTEND="noninteractive" TZ="{{ self.env.TZ }}"
-    apt -y upgrade
+    apt-get -y upgrade
     {{ self.install_dependencies() }}
     rm -f /etc/xdg/autostart/xscreensaver.desktop
     mkdir -p /.repro-bins
     curl -fsL -o /.repro-bins/kasmvncserver.deb "{{ self.urls[self.kasm_distro] }}"
-    dpkg -i /.repro-bins/kasmvncserver.deb
-    curl -fsL -o /.repro-bins/google-chrome.deb "{{ self.urls['google-chrome'] }}"
-    apt install /.repro-bins/google-chrome.deb
+    apt-get install /.repro-bins/kasmvncserver.deb
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem /opt/cert.pem
     cp /etc/ssl/private/ssl-cert-snakeoil.key /opt/key.pem
+    wget https://github.com/mikefarah/yq/releases/download/v4.49.2/yq_linux_amd64 -O /usr/local/bin/yq
+    chmod +x /usr/local/bin/yq
     yq eval -n --output-format=yaml '.network.ssl.require_ssl = false | .network.ssl.pem_certificate = "/opt/cert.pem" | .network.ssl.pem_key = "/opt/key.pem" | .user_session.session_type = "exclusive" | .command_line.prompt = false | .logging.log_dest = "stdout"' > /etc/kasmvnc/kasmvnc.yaml
     chmod a+r /opt/cert.pem /opt/key.pem
     mkdir -p /run/user

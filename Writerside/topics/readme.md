@@ -8,7 +8,7 @@ However the concept has been very useful to create any Docker image for OpenOnDe
 ## Short version:
 Read generate_apps.sh
 source generate_apps.sh
-Call a function to generate a Docker image for OpenOnDemand
+Call a function to generate a Docker or Singularity image for OpenOnDemand
 
 ## Functional version:
 1. Clone the repository into your RubyMine IDE
@@ -20,7 +20,7 @@ Call a function to generate a Docker image for OpenOnDemand
 1. Make sure Neurodocker and YQ are installed and in your PATH:
    - `neurodocker --version`
    - `yq --version`
-1. Set the environment variable to generate a Docker image for OpenOnDemand:
+1. Set the environment variable to generate a Docker image for OpenOnDemand (default is Singularity):
    - `export CONTAINER=docker`
 1. Source the script to generate the Docker image:
    - `source generate_apps.sh`
@@ -66,6 +66,6 @@ This MAY be slightly inefficient at build time but the composability is worth it
 Using WriterSide.
 
 # TODO:
-- Add a cleanup template that minifies the container
-- Add RPM builds for common tools
+- Add a cleanup template that minifies the container (consideration: reproducibility if you eliminate sources)
+- Add RPM or NIST compliant/hardened source containers for common tools
 - Compile this documentation to a static page for both GitLab and GitHub

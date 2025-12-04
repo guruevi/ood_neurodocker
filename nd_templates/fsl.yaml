@@ -15,21 +15,13 @@ alert: FSL is non-free. If you are considering commercial use of FSL, please con
 binaries:
     arguments:
         required:
-        -   version
+          - version
         optional:
             install_path: /opt/fsl-{{ self.version }}
             exclude_paths: ''
     urls:
-        6.0.7.16: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.7.14: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.7.8: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.7.4: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.7.1: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
+        6.0.7.19: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
         6.0.6.4: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.6.3: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.6.2: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.6.1: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
-        6.0.6: https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
         6.0.5.2: https://fsl.fmrib.ox.ac.uk/fsldownloads/fsl-6.0.5.2-centos7_64.tar.gz
         6.0.5.1: https://fsl.fmrib.ox.ac.uk/fsldownloads/fsl-6.0.5.1-centos7_64.tar.gz
         6.0.5: https://fsl.fmrib.ox.ac.uk/fsldownloads/fsl-6.0.5-centos7_64.tar.gz
@@ -131,3 +123,7 @@ binaries:
         rm -f {{ self.install_path }}/bin/FSLeyes/libz.so.1
         {% endif -%}
         {% endif -%}
+        echo "Creating /opt/fsl-current symlink ..."
+        rm -f /opt/fsl-current
+        ln -s {{ self.install_path }} /opt/fsl-current
+

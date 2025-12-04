@@ -14,6 +14,12 @@ fi
 if [ -z "${SINGULARITY_CACHEDIR}" ]; then
   SINGULARITY_CACHEDIR="/opt/ood_apps/images/.cache"
 fi
+if [ -z "${ND_GEN_COMMAND}" ]; then
+  ND_GEN_COMMAND=(neurodocker generate --template-path nd_templates ${CONTAINER})
+fi
+if [ -z "${ND_GEN_ARGS}" ]; then
+  ND_GEN_ARGS=(--user nonroot --pkg-manager apt --yes)
+fi
 
 if [ "$CONTAINER" = "singularity" ]; then
   CONTAINER_FILE="def"
@@ -94,7 +100,7 @@ gen_container() {
 }
 
 ########################################################################################################################
-# DOOM
+# DOOM - this is an example on how to compose a simple application
 ########################################################################################################################
 build_doom() {
   app_name="doom"
@@ -103,12 +109,10 @@ build_doom() {
   gen_template "${app_name}_gui" "DOOM (GUI)" "DOOM (GUI)" "fa://gamepad"
   for app_version in "${DOOM_VERSION[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
-      --pkg-manager apt \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
       --kasmvnc de=xfce kasm_distro="noble" but_can_it_run_doom="Y" \
-      --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -124,7 +128,7 @@ build_ants() {
   #gen_template "${app_name}_gui" "ANTS (GUI)" "ANTS (GUI)"
   for app_version in "${APP_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
       --pkg-manager apt \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
@@ -145,7 +149,7 @@ build_afni() {
   gen_template "${app_name}_gui" "AFNI (GUI)" "MRI Analysis"
   for app_version in "${AFNI_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
       --pkg-manager apt \
       --base-image ubuntu:24.04 \
       --kasmvnc de=xfce kasm_distro="noble" \
@@ -194,13 +198,11 @@ build_rstudio() {
           seurat="N"
         fi
         echo "Building ${app_name}_${app_version} (${variant})"
-        neurodocker generate --template-path nd_templates "${CONTAINER}" \
-          --pkg-manager apt \
+        "${ND_GEN_COMMAND[@]}" --pkg-manager apt --user rstudio \
           --base-image $base_image \
           --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
           --ttyd version="1.7.7" \
           --rstudio addons="remotes" seurat="$seurat" bioconductor="$bioconductor" rprofile='options(BioC_mirror = "https://smdartifactory.urmc-sh.rochester.edu/artifactory/bioconductor")\noptions(repos = "https://smdartifactory.urmc-sh.rochester.edu/artifactory/cran-remote")' \
-          --user rstudio \
         > "bc_${app_name}/${app_name}_${app_version}-${variant}${with_libs}.${CONTAINER_FILE}"
         gen_container ${app_name} ${app_version}-${variant}${with_libs}
       done
@@ -213,31 +215,21 @@ build_rstudio() {
 ########################################################################################################################
 build_fsl() {
   ## '6.0.6.2' '6.0.6.1' '6.0.6' '6.0.5.2' '6.0.5.1' '6.0.5' '6.0.4' '6.0.3' '6.0.2' '6.0.1' '6.0.0' '5.0.11' '5.0.10' '5.0.9' '5.0.8'
-  FSL_VERSIONS=('6.0.7.4' '6.0.7.1' '6.0.6.4' '6.0.6.3')
+  FSL_VERSIONS=('6.0.7.19' '6.0.6.4')
   app_name="fsl"
   gen_template "fsl" "FSL (Shell)" "MRI Analysis" "fa://brain"
   gen_template "fsl_gui" "FSL (GUI)" "MRI Analysis" "fa://brain"
   for app_version in "${FSL_VERSIONS[@]}"; do
     echo "Building fsl_${app_version}"
-    neurodocker generate ${CONTAINER} \
-      --pkg-manager apt \
+    "${ND_GEN_COMMAND[@]}" \
       --base-image debian:bullseye-slim \
       --fsl version="${app_version}" \
-      --yes \
-      --run "export DEBIAN_FRONTEND=noninteractive TZ=America/New_York" \
-      --install supervisor xfce4 xfce4-terminal xterm dbus-x11 libdbus-glib-1-2 vim wget net-tools locales bzip2 tmux \
-                procps apt-utils python3-numpy mesa-utils pulseaudio tigervnc-standalone-server libnss-wrapper gettext \
-      --run "curl -L --output /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.i686" \
-      --run "chmod +x /usr/bin/ttyd" \
-      --run "echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && locale-gen" \
-      --run "mkdir -p /opt/novnc/utils/websockify" \
-      --run "curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.6.0.tar.gz | tar xz --strip 1 -C /opt/novnc" \
-      --run "curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.12.0.tar.gz | tar xz --strip 1 -C /opt/novnc/utils/websockify" \
-      --run "ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html" \
-      --run "printf '\$localhost = \"no\";\n1;\n' >/etc/tigervnc/vncserver-config-defaults" \
-      --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
+      --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
+      --kasmvnc de=xfce kasm_distro="bullseye" single_app="/usr/local/bin/fsl" \
+      --ttyd version=1.7.7 \
+      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -245,10 +237,11 @@ build_fsl() {
 
 ########################################################################################################################
 # Spaceranger
+# Spaceranger only provides temporary download files, so you need to copy the tarball into /opt/ood_apps/spaceranger/
 ########################################################################################################################
 build_spaceranger() {
   app_name="spaceranger"
-  app_version="3.1.3"
+  app_version="4.0.1 3.1.3"
   gen_template "spaceranger" "Space Ranger" "Omics" "fa://shuttle-space"
   echo "Building spaceranger"
   neurodocker generate ${CONTAINER} \
@@ -257,9 +250,9 @@ build_spaceranger() {
     --ttyd version=1.7.7 \
     --kasmvnc de=xfce kasm_distro="bullseye" \
     --yes \
-    --copy /opt/ood_apps/spaceranger/spaceranger-3.1.3.tar.gz /opt/spaceranger-3.1.3.tar.gz \
-    --run "tar -xvf /opt/spaceranger-3.1.3.tar.gz -C /opt/spaceranger" \
-    --run "rm /opt/spaceranger-3.1.3.tar.gz" \
+    --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /opt/spaceranger-${app_version}.tar.gz \
+    --run "tar -xvf /opt/spaceranger-${app_version}.tar.gz -C /opt/spaceranger" \
+    --run "rm -f /opt/spaceranger-${app_version}.tar.gz" \
     --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   gen_container ${app_name} ${app_version}
@@ -276,7 +269,7 @@ build_qupath() {
   gen_template "qupath" "QuPath (Shell)" "Image Processing" "fa://magnifying-glass"
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
-  neurodocker generate --template-path nd_templates "${CONTAINER}" \
+  "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
       --pkg-manager apt \
       --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
       --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
@@ -318,7 +311,7 @@ build_matlab() {
 
   for app_version in "${MATLAB_VERSIONS[@]}"; do
     ### Generate  ###
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
         --pkg-manager apt \
         --base-image ${base_repo}:"${app_version}" \
         --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
@@ -358,7 +351,7 @@ build_fmriprep() {
 
   for app_version in "${FMRIPREP_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
       --pkg-manager apt \
       --base-image nipreps/fmriprep:${app_version} \
       --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
@@ -381,7 +374,7 @@ build_pymol() {
   gen_template "${app_name}_gui" "PyMOL (GUI)" "Computational Biology" "fa://molecule"
   for app_version in "${PYMOL_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    neurodocker generate --template-path nd_templates "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
       --pkg-manager apt \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
