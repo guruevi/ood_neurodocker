@@ -250,8 +250,8 @@ build_spaceranger() {
       --kasmvnc de=xfce kasm_distro="bullseye" \
       --ttyd version=1.7.7 \
       --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /.repro-bins/spaceranger-${app_version}.tar.gz \
-      --run "mkdir -p /opt/spaceranger" \
-      --run "tar -xzvf /.repro-bins/spaceranger-${app_version}.tar.gz -C /opt/spaceranger" \
+      --run "tar -xzvf /.repro-bins/spaceranger-${app_version}.tar.gz -C /opt" \
+      --run "rm -f /opt/spaceranger; ln -s /opt/spaceranger-${app_version} /opt/spaceranger" \
       --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
       "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
