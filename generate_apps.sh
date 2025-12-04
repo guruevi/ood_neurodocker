@@ -249,9 +249,9 @@ build_spaceranger() {
       --base-image debian:bullseye-slim \
       --kasmvnc de=xfce kasm_distro="bullseye" \
       --ttyd version=1.7.7 \
-      --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /opt/spaceranger-${app_version}.tar.gz \
-      --run "tar -xvf /opt/spaceranger-${app_version}.tar.gz -C /opt/spaceranger" \
-      --run "rm -f /opt/spaceranger-${app_version}.tar.gz" \
+      --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /.repro-bins/spaceranger-${app_version}.tar.gz \
+      --run "mkdir -p /opt/spaceranger" \
+      --run "tar -xzvf /.repro-bins/spaceranger-${app_version}.tar.gz -C /opt/spaceranger" \
       --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
       "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
@@ -305,21 +305,20 @@ build_matlab() {
   # To check the available matlab-deps images, see: https://hub.docker.com/r/mathworks/matlab-deps
   base_repo="mathworks/matlab-deps"
 
-  MATLAB_VERSIONS=('R2024a' 'R2023b' 'R2023a' 'R2022b' 'R2022a' 'R2021b' 'R2021a' 'R2020b' 'R2020a')
+  MATLAB_VERSIONS=('R2025a' 'R2024b' 'R2024a' 'R2023b' 'R2023a' 'R2022b' 'R2022a' 'R2021b' 'R2021a' 'R2020b' 'R2020a')
   gen_template "matlab" "MATLAB (Shell)" "Servers" "fa://cogs"
   gen_template "matlab_gui" "MATLAB (GUI)" "Servers" "fa://cogs"
   echo "Building MATLAB"
 
   for app_version in "${MATLAB_VERSIONS[@]}"; do
     ### Generate  ###
-    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" \
         --pkg-manager apt \
         --base-image ${base_repo}:"${app_version}" \
         --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
-        --yes \
         --ttyd version=1.7.7 \
         --matlab version="${app_version}" \
-        --user nonroot \
+        "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
 
     ### Build ###
