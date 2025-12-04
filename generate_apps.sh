@@ -223,12 +223,12 @@ build_fsl() {
     echo "Building fsl_${app_version}"
     "${ND_GEN_COMMAND[@]}" \
       --base-image debian:bullseye-slim \
+      --kasmvnc de=xfce kasm_distro="bullseye" single_app="/usr/local/bin/fsl" \
+      --ttyd version=1.7.7 \
       --fsl version="${app_version}" \
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
       --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
-      --kasmvnc de=xfce kasm_distro="bullseye" single_app="/usr/local/bin/fsl" \
-      --ttyd version=1.7.7 \
       "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
@@ -241,22 +241,23 @@ build_fsl() {
 ########################################################################################################################
 build_spaceranger() {
   app_name="spaceranger"
-  app_version="4.0.1 3.1.3"
+  SPACERANGER_VERSIONS=('4.0.1' '3.1.3')
   gen_template "spaceranger" "Space Ranger" "Omics" "fa://shuttle-space"
   echo "Building spaceranger"
-  neurodocker generate ${CONTAINER} \
-    --pkg-manager apt \
-    --base-image debian:bullseye-slim \
-    --ttyd version=1.7.7 \
-    --kasmvnc de=xfce kasm_distro="bullseye" \
-    --yes \
-    --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /opt/spaceranger-${app_version}.tar.gz \
-    --run "tar -xvf /opt/spaceranger-${app_version}.tar.gz -C /opt/spaceranger" \
-    --run "rm -f /opt/spaceranger-${app_version}.tar.gz" \
-    --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
-  > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-  gen_container ${app_name} ${app_version}
-  sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/spaceranger/bin"@' bc_${app_name}/template/script.sh.erb
+  for app_version in "${SPACERANGER_VERSIONS[@]}"; do
+    "${ND_GEN_COMMAND[@]}" \
+      --base-image debian:bullseye-slim \
+      --kasmvnc de=xfce kasm_distro="bullseye" \
+      --ttyd version=1.7.7 \
+      --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /opt/spaceranger-${app_version}.tar.gz \
+      --run "tar -xvf /opt/spaceranger-${app_version}.tar.gz -C /opt/spaceranger" \
+      --run "rm -f /opt/spaceranger-${app_version}.tar.gz" \
+      --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
+      "${ND_GEN_ARGS[@]}" \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    gen_container ${app_name} ${app_version}
+    sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/spaceranger/bin"@' bc_${app_name}/template/script.sh.erb
+  done
 }
 
 
