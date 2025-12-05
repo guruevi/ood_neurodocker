@@ -70,12 +70,12 @@ attributes:
   sr_id:
     label: "--id"
     help: "A unique run id and output folder name ([a-zA-Z0-9_-]+)"
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_description:
     label: "--description"
     help: "Sample description to embed in output files"
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_image:
     label: "--image (H&E TIFF/JPG)"
@@ -109,12 +109,12 @@ attributes:
   sr_slide:
     label: "--slide"
     help: "Visium slide serial number (e.g. V10J25-015). Use --sr_unknown_slide if unknown."
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_area:
     label: "--area"
     help: "Visium capture area identifier (e.g. A1). Must be used with --sr_slide unless --sr_unknown_slide is used."
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_override_id:
     label: "--override-id"
@@ -155,12 +155,12 @@ attributes:
   sr_sample:
     label: "--sample"
     help: "Prefix of the filenames of FASTQs to select"
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_lanes:
     label: "--lanes"
     help: "Only use FASTQs from selected lanes (comma-separated)"
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_libraries:
     label: "--libraries"
@@ -200,7 +200,7 @@ attributes:
   sr_image_scale:
     label: "--image-scale"
     help: "Microns per microscope image pixel (float)"
-    widget: "text"
+    widget: "text_field"
     value: ""
   sr_loupe_alignment:
     label: "--loupe-alignment"
@@ -254,7 +254,7 @@ attributes:
   sr_nucleus_expansion_distance_micron:
     label: "--nucleus-expansion-distance-micron"
     help: "Max distance (microns) to assign barcode to a nucleus (default: 8)"
-    widget: "text"
+    widget: "text_field"
     value: "8"
   sr_dry:
     label: "--dry"
@@ -286,7 +286,7 @@ attributes:
   sr_umi_to_image_offset:
     label: "--umi-to-image-offset"
     help: "Custom offset for UMI registration in microns: dx=<float>,dy=<float> (e.g. dx=1.5,dy=-2.0)"
-    widget: "text"
+    widget: "text_field"
     value: ""
   # Aggregate-specific fields
   sr_csv:
