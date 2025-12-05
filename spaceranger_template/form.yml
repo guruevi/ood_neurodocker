@@ -104,7 +104,7 @@ attributes:
   sr_dapi_index:
     label: "--dapi-index"
     help: "Index of DAPI channel (1-indexed) of fluorescence image"
-    widget: "number"
+    widget: "number_field"
     value: 1
   sr_slide:
     label: "--slide"
@@ -119,7 +119,7 @@ attributes:
   sr_override_id:
     label: "--override-id"
     help: "Override slide serial number and capture area provided in CytAssist metadata"
-    widget: "checkbox"
+    widget: "check_box"
     value: false
   sr_transcriptome:
     label: "--transcriptome"
@@ -223,15 +223,15 @@ attributes:
   sr_r1_length:
     label: "--r1-length"
     help: "Hard trim input Read 1 to this length before analysis"
-    widget: "number"
+    widget: "number_field"
   sr_r2_length:
     label: "--r2-length"
     help: "Hard trim input Read 2 to this length before analysis"
-    widget: "number"
+    widget: "number_field"
   sr_no_libraries:
     label: "--no-libraries"
     help: "Proceed using a --sr_feature_ref but no protein expression libraries"
-    widget: "checkbox"
+    widget: "check_box"
     value: false
   sr_nucleus_segmentation:
     label: "--nucleus-segmentation"
@@ -249,7 +249,7 @@ attributes:
   sr_max_nucleus_diameter_px:
     label: "--max-nucleus-diameter-px"
     help: "Expected max nucleus diameter in pixels (default 256, max 1024)"
-    widget: "number"
+    widget: "number_field"
     value: 256
   sr_nucleus_expansion_distance_micron:
     label: "--nucleus-expansion-distance-micron"
@@ -275,7 +275,7 @@ attributes:
   sr_custom_bin_size:
     label: "--custom-bin-size"
     help: "Bin Visium HD data to specified bin size in microns (even integer between 4 and 100)"
-    widget: "number"
+    widget: "number_field"
   sr_umi_registration:
     label: "--umi-registration"
     help: "Enable UMI-based registration algorithm when H&E and Visium HD slide ID provided"
