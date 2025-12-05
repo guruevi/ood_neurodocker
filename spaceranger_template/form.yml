@@ -62,4 +62,7 @@ form:
   - bc_email_on_started
   - memory_multiplier
   - sr_command
+  - sr_id
+  - sr_output_dir
+  - sr_image
 form_header: 10x Genomics offers pre-built human and mouse references for download. You can access those at /opt/ood_apps/spaceranger/references/
