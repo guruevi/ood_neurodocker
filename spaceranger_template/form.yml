@@ -20,10 +20,15 @@ attributes:
     label: "Command"
     options:
       - [ "Count gene expression and protein expression reads from a single capture area", "count",
+          # Aggr
           data-hide-sr_csv: true,
           data-hide-sr_normalize: true,
+          # Hide segment-only fields
+          data-hide-sr_tissue_image: true,
+          # mkfastq
         ]
       - [ "Aggregate data from multiple spaceranger count runs", "aggr",
+          # Count
           data-hide-sr_image: true,
           data-hide-sr_darkimage: true,
           data-hide-sr_colorizedimage: true,
@@ -57,15 +62,94 @@ attributes:
           data-hide-sr_nucleus_expansion_distance_micron: true,
           data-hide-sr_custom_bin_size: true,
           data-hide-sr_umi_registration: true,
-          data-hide-sr_umi_to_image_offset: true
+          data-hide-sr_umi_to_image_offset: true,
+          # Hide segment-only fields
+          data-hide-sr_tissue_image: true,
+          # mkfastq
+          # Count and Segment common
+          data-hide-sr_output_dir: true
         ]
       - [ "Segment nuclei from a microscope image", "segment",
-            data-hide-sr_image: true,
+          # Hide aggr-only fields
             data-hide-sr_csv: true,
-            data-hide-sr_normalize: true
+            data-hide-sr_normalize: true,
+          # Count
+            data-hide-sr_image: true,
+            data-hide-sr_darkimage: true,
+            data-hide-sr_colorizedimage: true,
+            data-hide-sr_cytaimage: true,
+            data-hide-sr_dapi_index: true,
+            data-hide-sr_slide: true,
+            data-hide-sr_area: true,
+            data-hide-sr_override_id: true,
+            data-hide-sr_reorient_images: true,
+            data-hide-sr_slidefile: true,
+            data-hide-sr_image_scale: true,
+            data-hide-sr_loupe_alignment: true,
+            data-hide-sr_transcriptome: true,
+            data-hide-sr_probe_set: true,
+            data-hide-sr_filter_probes: true,
+            data-hide-sr_fastqs: true,
+            data-hide-sr_project: true,
+            data-hide-sr_sample: true,
+            data-hide-sr_lanes: true,
+            data-hide-sr_libraries: true,
+            data-hide-sr_feature_ref: true,
+            data-hide-sr_unknown_slide: true,
+            data-hide-sr_create_bam: true,
+            data-hide-sr_nosecondary: true,
+            data-hide-sr_r1_length: true,
+            data-hide-sr_r2_length: true,
+            data-hide-sr_no_libraries: true,
+            data-hide-sr_nucleus_segmentation: true,
+            data-hide-sr_custom_segmentation_file: true,
+            data-hide-sr_nucleus_expansion_distance_micron: true,
+            data-hide-sr_custom_bin_size: true,
+            data-hide-sr_umi_registration: true,
+            data-hide-sr_umi_to_image_offset: true
+          # mkfastq
       ]
       - [ "Run Illumina demultiplexer on sample sheets that contain 10x-specific sample index sets, and generate 10x-specific quality metrics after the demultiplex.", "mkfastq",
-          data-hide-sr_image: true
+          # Aggr
+            data-hide-sr_csv: true,
+            data-hide-sr_normalize: true,
+          # Count
+            data-hide-sr_image: true,
+            data-hide-sr_darkimage: true,
+            data-hide-sr_colorizedimage: true,
+            data-hide-sr_cytaimage: true,
+            data-hide-sr_dapi_index: true,
+            data-hide-sr_slide: true,
+            data-hide-sr_area: true,
+            data-hide-sr_override_id: true,
+            data-hide-sr_reorient_images: true,
+            data-hide-sr_slidefile: true,
+            data-hide-sr_image_scale: true,
+            data-hide-sr_loupe_alignment: true,
+            data-hide-sr_transcriptome: true,
+            data-hide-sr_probe_set: true,
+            data-hide-sr_filter_probes: true,
+            data-hide-sr_fastqs: true,
+            data-hide-sr_project: true,
+            data-hide-sr_sample: true,
+            data-hide-sr_lanes: true,
+            data-hide-sr_libraries: true,
+            data-hide-sr_feature_ref: true,
+            data-hide-sr_unknown_slide: true,
+            data-hide-sr_create_bam: true,
+            data-hide-sr_nosecondary: true,
+            data-hide-sr_r1_length: true,
+            data-hide-sr_r2_length: true,
+            data-hide-sr_no_libraries: true,
+            data-hide-sr_nucleus_segmentation: true,
+            data-hide-sr_custom_segmentation_file: true,
+            data-hide-sr_max_nucleus_diameter_px: true,
+            data-hide-sr_nucleus_expansion_distance_micron: true,
+            data-hide-sr_custom_bin_size: true,
+            data-hide-sr_umi_registration: true,
+            data-hide-sr_umi_to_image_offset: true,
+            # Hide segment-only fields
+            data-hide-sr_tissue_image: true,
       ]
   sr_id:
     label: "--id"
@@ -303,6 +387,14 @@ attributes:
       - [ "mapped", "mapped" ]
       - [ "none", "none" ]
     value: "mapped"
+  # Segment-specific fields
+  sr_tissue_image:
+    label: "--tissue-image (TIF/TIFF/BTF/JPG/JPEG)"
+    help: "The H&E tissue image to run nucleus segmentation on. Fluorescent images not supported."
+    widget: "path_selector"
+    directory: "/mnt/nfs"
+    show_files: true
+
 form:
   - app_version
   - cores
@@ -315,7 +407,7 @@ form:
   - sr_command
   - sr_id
   - sr_description
-  - sr_output_dir
+# Count-specific fields
   - sr_image
   - sr_darkimage
   - sr_colorizedimage
@@ -347,22 +439,18 @@ form:
   - sr_custom_segmentation_file
   - sr_max_nucleus_diameter_px
   - sr_nucleus_expansion_distance_micron
-  - sr_dry
-  - sr_jobmode
-  - sr_localcores
-  - sr_localmem
-  - sr_localvmem
-  - sr_mempercore
-  - sr_maxjobs
-  - sr_jobinterval
-  - sr_overrides
-  - sr_nopreflight
   - sr_custom_bin_size
   - sr_umi_registration
   - sr_umi_to_image_offset
-  - sr_aggr_csv
-  - sr_aggr_normalize
-  - sr_aggr_id
-  - sr_aggr_description
+# Segment-specific fields
+  - sr_tissue_image
+# Aggregate-specific fields
+  - sr_csv
+  - sr_normalize
+# Count and Segment common
+  - sr_output_dir
+# Common across the board
+  - sr_dry
+  - sr_nopreflight
 
 form_header: 10x Genomics offers pre-built human and mouse references for download. You can access those at /opt/ood_apps/spaceranger/references/
