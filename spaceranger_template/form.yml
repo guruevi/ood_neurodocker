@@ -24,8 +24,7 @@ attributes:
           data-hide-sr-csv: true,
           data-hide-sr-normalize: true,
           # Hide segment-only fields
-          data-hide-sr-tissue-image: true,
-          # mkfastq
+          data-hide-sr-tissue-image: true
         ]
       - [ "Aggregate data from multiple spaceranger count runs", "aggr",
           # Count
@@ -65,7 +64,6 @@ attributes:
           data-hide-sr-umi-to-image-offset: true,
           # Hide segment-only fields
           data-hide-sr-tissue-image: true,
-          # mkfastq
           # Count and Segment common
           data-hide-sr-output-dir: true
         ]
@@ -107,49 +105,6 @@ attributes:
             data-hide-sr-custom-bin-size: true,
             data-hide-sr-umi-registration: true,
             data-hide-sr-umi-to-image-offset: true
-          # mkfastq
-      ]
-      - [ "Run Illumina demultiplexer on sample sheets that contain 10x-specific sample index sets, and generate 10x-specific quality metrics after the demultiplex.", "mkfastq",
-          # Aggr
-            data-hide-sr-csv: true,
-            data-hide-sr-normalize: true,
-          # Count
-            data-hide-sr-image: true,
-            data-hide-sr-darkimage: true,
-            data-hide-sr-colorizedimage: true,
-            data-hide-sr-cytaimage: true,
-            data-hide-sr-dapi-index: true,
-            data-hide-sr-slide: true,
-            data-hide-sr-area: true,
-            data-hide-sr-override-id: true,
-            data-hide-sr-reorient-images: true,
-            data-hide-sr-slidefile: true,
-            data-hide-sr-image-scale: true,
-            data-hide-sr-loupe-alignment: true,
-            data-hide-sr-transcriptome: true,
-            data-hide-sr-probe-set: true,
-            data-hide-sr-filter-probes: true,
-            data-hide-sr-fastqs: true,
-            data-hide-sr-project: true,
-            data-hide-sr-sample: true,
-            data-hide-sr-lanes: true,
-            data-hide-sr-libraries: true,
-            data-hide-sr-feature-ref: true,
-            data-hide-sr-unknown-slide: true,
-            data-hide-sr-create-bam: true,
-            data-hide-sr-nosecondary: true,
-            data-hide-sr-r1-length: true,
-            data-hide-sr-r2-length: true,
-            data-hide-sr-no-libraries: true,
-            data-hide-sr-nucleus-segmentation: true,
-            data-hide-sr-custom-segmentation-file: true,
-            data-hide-sr-max-nucleus-diameter-px: true,
-            data-hide-sr-nucleus-expansion-distance-micron: true,
-            data-hide-sr-custom-bin-size: true,
-            data-hide-sr-umi-registration: true,
-            data-hide-sr-umi-to-image-offset: true,
-            # Hide segment-only fields
-            data-hide-sr-tissue-image: true,
       ]
   sr_id:
     label: "--id"
@@ -220,9 +175,8 @@ attributes:
   sr_filter_probes:
     label: "--filter-probes"
     help: "Whether to filter the probe set using the included column of the probe set CSV"
-    widget: "check_box"
-    checked_value: "true"
-    unchecked_value: "false"
+    widget: "select"
+    options: [["true", "true"], ["false", "false"]]
     value: "true"
   sr_fastqs:
     label: "--fastqs"
@@ -271,9 +225,8 @@ attributes:
   sr_reorient_images:
     label: "--reorient-images"
     help: "Rotate/mirror image to align fiducial pattern (default: true)"
-    widget: "check_box"
-    checked_value: "true"
-    unchecked_value: "false"
+    widget: "select"
+    options: [["true", "true"], ["false", "false"]]
     value: "true"
   sr_slidefile:
     label: "--slidefile"
@@ -294,10 +247,9 @@ attributes:
     show_files: true
   sr_create_bam:
     label: "--create-bam"
-    help: "Enable or disable BAM file generation (default: true)"
-    widget: "check_box"
-    checked_value: "true"
-    unchecked_value: "false"
+    help: "Enable or disable BAM file generation. See https://10xgen.com/create-bam for additional guidance."
+    widget: "select"
+    options: [["true", "true"], ["false", "false"]]
     value: "true"
   sr_nosecondary:
     label: "--nosecondary"
@@ -320,9 +272,8 @@ attributes:
   sr_nucleus_segmentation:
     label: "--nucleus-segmentation"
     help: "Whether to perform automated nucleus segmentation when an H&E image is provided (default: true)"
-    widget: "check_box"
-    checked_value: "true"
-    unchecked_value: "false"
+    widget: "select"
+    options: [["true", "true"], ["false", "false"]]
     value: "true"
   sr_custom_segmentation_file:
     label: "--custom-segmentation-file"
@@ -332,14 +283,15 @@ attributes:
     show_files: true
   sr_max_nucleus_diameter_px:
     label: "--max-nucleus-diameter-px"
-    help: "Expected max nucleus diameter in pixels (default 256, max 1024)"
+    help: "Expected max nucleus diameter in pixels (default 256, max 1024)."
     widget: "number_field"
     value: 256
+    max: 1024
   sr_nucleus_expansion_distance_micron:
     label: "--nucleus-expansion-distance-micron"
     help: "Max distance (microns) to assign barcode to a nucleus (default: 8)"
-    widget: "text_field"
-    value: "8"
+    widget: "number_field"
+    value: 8
   sr_dry:
     label: "--dry"
     help: "Do not execute the pipeline. Generate pipeline invocation (.mro) and stop"
@@ -363,9 +315,8 @@ attributes:
   sr_umi_registration:
     label: "--umi-registration"
     help: "Enable UMI-based registration algorithm when H&E and Visium HD slide ID provided"
-    widget: "check_box"
-    checked_value: "true"
-    unchecked_value: "false"
+    widget: "select"
+    options: [["true", "true"], ["false", "false"]]
     value: "true"
   sr_umi_to_image_offset:
     label: "--umi-to-image-offset"

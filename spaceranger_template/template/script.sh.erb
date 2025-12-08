@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+<%
+# Build spaceranger CLI options safely. Do not pass options without a value.
+options = []
+
+# Helper to append key/value only when value is present / non-empty.
+# If flag_only is true, emit only the flag when the value is true; omit when false.
+# If flag_only is false, always emit `--key true` or `--key false` for boolean-like values.
+def add_opt(opts, key, val, flag_only = false)
+  return if val.nil? || (val.respond_to?(:empty?) && val.empty?)
+
+  # normalize string booleans
+  str_true = (val == true || val == "true")
+  str_false = (val == false || val == "false")
+
+  if flag_only
+    # checkbox semantics: only emit flag when true
+    opts << key if str_true
+  else
+    # select/explicit boolean semantics: emit explicit true/false
+    if str_true || str_false
+      opts << "#{key} #{str_true ? 'true' : 'false'}"
+    else
+      # non-boolean values (strings/numbers) get passed as value
+      opts << "#{key} #{val}"
+    end
+  end
+end
+
+# Common options
+add_opt(options, "--id", context.sr_id)
+add_opt(options, "--description", context.sr_description)
+add_opt(options, "--output-dir", context.sr_output_dir)
+
+# Options specific to 'count'
+if context.sr_command == "count"
+  add_opt(options, "--image", context.sr_image)
+  add_opt(options, "--darkimage", context.sr_darkimage)
+  add_opt(options, "--colorizedimage", context.sr_colorizedimage)
+  add_opt(options, "--cytaimage", context.sr_cytaimage)
+  add_opt(options, "--dapi-index", context.sr_dapi_index)
+  add_opt(options, "--slide", context.sr_slide)
+  add_opt(options, "--area", context.sr_area)
+  add_opt(options, "--override-id", context.sr_override_id, true)
+  add_opt(options, "--transcriptome", context.sr_transcriptome)
+  add_opt(options, "--probe-set", context.sr_probe_set)
+  add_opt(options, "--filter-probes", context.sr_filter_probes)
+  add_opt(options, "--fastqs", context.sr_fastqs)
+  add_opt(options, "--project", context.sr_project)
+  add_opt(options, "--sample", context.sr_sample)
+  add_opt(options, "--lanes", context.sr_lanes)
+  add_opt(options, "--libraries", context.sr_libraries)
+  add_opt(options, "--feature-ref", context.sr_feature_ref)
+  add_opt(options, "--unknown-slide", context.sr_unknown_slide)
+  add_opt(options, "--reorient-images", context.sr_reorient_images)
+  add_opt(options, "--slidefile", context.sr_slidefile)
+  add_opt(options, "--image-scale", context.sr_image_scale)
+  add_opt(options, "--loupe-alignment", context.sr_loupe_alignment)
+  add_opt(options, "--create-bam", context.sr_create_bam)
+  add_opt(options, "--nosecondary", context.sr_nosecondary, true)
+  add_opt(options, "--r1-length", context.sr_r1_length)
+  add_opt(options, "--r2-length", context.sr_r2_length)
+  add_opt(options, "--no-libraries", context.sr_no_libraries, true)
+  add_opt(options, "--nucleus-segmentation", context.sr_nucleus_segmentation)
+  add_opt(options, "--custom-segmentation-file", context.sr_custom_segmentation_file)
+  # Only add max-nucleus if custom segmentation is NOT present
+  unless context.sr_custom_segmentation_file.present?
+    add_opt(options, "--max-nucleus-diameter-px", context.sr_max_nucleus_diameter_px)
+  end
+  add_opt(options, "--nucleus-expansion-distance-micron", context.sr_nucleus_expansion_distance_micron)
+  add_opt(options, "--custom-bin-size", context.sr_custom_bin_size)
+  add_opt(options, "--umi-registration", context.sr_umi_registration)
+  add_opt(options, "--umi-to-image-offset", context.sr_umi_to_image_offset)
+end
+
+# Options specific to 'aggr'
+if context.sr_command == "aggr"
+  add_opt(options, "--csv", context.sr_csv)
+  add_opt(options, "--normalize", context.sr_normalize)
+end
+
+# Options specific to 'segment'
+if context.sr_command == "segment"
+  add_opt(options, "--tissue-image", context.sr_tissue_image)
+  # custom segmentation file prevents max-nucleus (enforced for count above too)
+  add_opt(options, "--custom-segmentation-file", context.sr_custom_segmentation_file)
+  unless context.sr_custom_segmentation_file.present?
+    add_opt(options, "--max-nucleus-diameter-px", context.sr_max_nucleus_diameter_px)
+  end
+  add_opt(options, "--nucleus-expansion-distance-micron", context.sr_nucleus_expansion_distance_micron)
+end
+
+# Job / cluster / resource related options (apply to any command)
+add_opt(options, "--dry", context.sr_dry, true)
+add_opt(options, "--jobmode", "local")
+add_opt(options, "--localcores", context.cores)
+add_opt(options, "--localmem", (context.memory_multiplier.to_i * context.cores.to_i / 1024).to_i)
+add_opt(options, "--nopreflight", context.sr_nopreflight, true)
+
+# Join options safely
+all_options = options.join(" ")
+%>
+
+# Singularity environment and execution
+export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps"
+
+singularity exec /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif \
+  /opt/spaceranger/bin/spaceranger <%= context.sr_command %> <%= all_options %>
