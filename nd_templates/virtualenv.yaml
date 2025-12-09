@@ -1,0 +1,22 @@
+---
+name: virtualenv
+url: https://virtualenv.pypa.io/en/latest/
+binaries:
+  urls:
+    3.7: https://bootstrap.pypa.io/get-pip.py
+  arguments:
+    required:
+      - python_version
+      - venv
+      - packages
+  instructions: |
+    echo "Installing Python{{ self.python_version }}"
+    {%- if self.pkg_manager == "apt" %}
+    apt-get update
+    apt-get -y install python{{ self.python_version }}-venv
+    {%- elif self.pkg_manager == "yum" %}
+    yum -y install python{{ self.python_version }}-virtualenv
+    {%- endif %}
+    python{{ self.python_version }} -m venv /opt/{{ self.venv }}
+    /opt/{{ self.venv }}/bin/pip install --no-cache-dir --upgrade pip
+    /opt/{{ self.venv }}/bin/pip install --no-cache-dir {{ self.packages }}
