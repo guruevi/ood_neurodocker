@@ -59,9 +59,6 @@ gen_template() {
   else
     yq -i '.icon = "'"${icon}"'"' bc_"${app}"/manifest.yml
   fi
-
-  # Update description if none is set
-  yq eval '.description |= (select(.) // "This will launch an interactive shell with "'"${title}"'" pre-installed. You will have full access to the resources requested. This is analogous to an interactive batch job.")' -i bc_"${app}"/manifest.yml
 }
 
 gen_container() {
