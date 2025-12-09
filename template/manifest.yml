@@ -4,7 +4,4 @@ icon: ${icon}
 category: Interactive Apps
 subcategory: ${subcategory}
 role: batch_connect
-description: |
-  This app will launch an interactive shell with ${app} pre-installed. You
-  will have full access to the resources these nodes provide. This is analogous
-  to an interactive batch job.
+description: ""

@@ -41,27 +41,28 @@ gen_template() {
   title=$2
   subcategory=$3
   icon=$4
+  bc_account="${app/_gui/}"
+
+  # Merge the templates
   rsync -a template/ "bc_${app}"/
   if [ -d "${app}"_template ]; then
     rsync -a "${app}"_template/ "bc_${app}"/
   fi
 
-  bc_account="${app/_gui/}"
-  yq -i '.title = "'"${title}"'"' bc_"${app}"/form.yml
-  yq -i '.attributes.bc_account = "'"${bc_account}"'"' bc_"${app}"/form.yml
-  yq -i '.name = "'"${title}"'"' bc_"${app}"/manifest.yml
-  yq -i '.subcategory = "'"${subcategory}"'"' bc_"${app}"/manifest.yml
+  # Update the form and manifest files
+  yq -i '.title = "'"${title}"'" | .attributes.bc_account = "'"${bc_account}"'"' bc_"${app}"/form.yml
+  yq -i '.name = "'"${title}"'" | .subcategory = "'"${subcategory}"'"' bc_"${app}"/manifest.yml
 
-  # Remove the icon pointer if a file exists
+  # Use custom icon if provided
   if [ -f "bc_${app}/icon.png" ]; then
     yq -i 'del(.icon)' bc_"${app}"/manifest.yml
   else
     yq -i '.icon = "'"${icon}"'"' bc_"${app}"/manifest.yml
   fi
 
-  yq -i '.description = "This will launch an interactive shell with '"${title}"' pre-installed. You
+  yq -i 'if (.description // "") == "" then .description = "This will launch an interactive shell with '"${title}"' pre-installed. You
                          will have full access to the resources requested. This is analogous
-                         to an interactive batch job."' bc_"${app}"/manifest.yml
+                         to an interactive batch job." else . end' bc_"${app}"/manifest.yml
 }
 
 gen_container() {
