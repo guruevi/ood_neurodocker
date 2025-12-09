@@ -4,4 +4,3 @@ icon: ${icon}
 category: Interactive Apps
 subcategory: ${subcategory}
 role: batch_connect
-description: ""
