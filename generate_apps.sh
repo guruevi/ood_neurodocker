@@ -36,18 +36,6 @@ if ! command -v yq &> /dev/null; then
   exit 1
 fi
 
-# Test if we have a global pip config file
-if [ -f /etc/pip.conf ]; then
-  GLOBAL_PIP_CONF="/etc/pip.conf"
-elif [ -f /etc/xdg/pip/pip.conf ]; then
-  GLOBAL_PIP_CONF="/etc/xdg/pip/pip.conf"
-elif [ -f /Library/Application\ Support/pip/pip.conf ]; then
-  GLOBAL_PIP_CONF="/Library/Application Support/pip/pip.conf"
-elif [ -f "$HOME/.config/pip/pip.conf" ]; then
-  GLOBAL_PIP_CONF="$HOME/.config/pip/pip.conf"
-fi
-GLOBAL_PIP_CONF=`cat "${GLOBAL_PIP_CONF}"`
-
 gen_template() {
   app=$1
   title=$2
@@ -128,12 +116,11 @@ build_ants() {
   #gen_template "${app_name}_gui" "ANTS (GUI)" "ANTS (GUI)"
   for app_version in "${APP_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
-      --pkg-manager apt \
+    "${ND_GEN_COMMAND[@]}" \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
       --ants version=2.6.0 \
-      --user nonroot \
+      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -150,12 +137,11 @@ build_afni() {
   for app_version in "${AFNI_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
     "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
-      --pkg-manager apt \
       --base-image ubuntu:24.04 \
       --kasmvnc de=xfce kasm_distro="noble" \
       --ttyd version=1.7.7 \
       --afni ubuntu_version="24" \
-      --user nonroot \
+      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -198,9 +184,8 @@ build_rstudio() {
           seurat="N"
         fi
         echo "Building ${app_name}_${app_version} (${variant})"
-        "${ND_GEN_COMMAND[@]}" --pkg-manager apt --user rstudio \
+        "${ND_GEN_COMMAND[@]}" --pkg-manager apt --user rstudio --yes \
           --base-image $base_image \
-          --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
           --ttyd version="1.7.7" \
           --rstudio addons="remotes" seurat="$seurat" bioconductor="$bioconductor" rprofile='options(BioC_mirror = "https://smdartifactory.urmc-sh.rochester.edu/artifactory/bioconductor")\noptions(repos = "https://smdartifactory.urmc-sh.rochester.edu/artifactory/cran-remote")' \
         > "bc_${app_name}/${app_name}_${app_version}-${variant}${with_libs}.${CONTAINER_FILE}"
@@ -269,29 +254,13 @@ build_qupath() {
   gen_template "qupath" "QuPath (Shell)" "Image Processing" "fa://magnifying-glass"
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
-  "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
-      --pkg-manager apt \
+  "${ND_GEN_COMMAND[@]}" \
       --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
-      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
-      --yes \
-      --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
+      --kasmvnc de=xfce kasm_distro="jammy" single_app="/opt/QuPath/bin/qupath" \
       --qupath version=${app_version} \
-      --user nonroot \
+      "${ND_GEN_ARGS[@]}" \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-  mkdir -p "${CONTAINER_REPOS}/${app_name}"
-  if [ "${CONTAINER}" = "docker" ]; then
-    docker buildx build --platform linux/amd64 -t qupath:${app_version} -f bc_qupath/qupath_${app_version}.Dockerfile .
-  elif [ "${CONTAINER}" = "singularity" ]; then
-    # Make sure we don't overwrite the container
-    if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-      echo "Singularity container already exists, skipping"
-    else
-      singularity build --nv ${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif bc_${app_name}/${app_name}_${app_version}.def
-      echo "Done building Singularity container"
-    fi
-  fi
-  yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-  yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+  gen_container ${app_name} ${app_version}
   sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}/template/script.sh.erb
   sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}_gui/template/script.sh.erb
 }
@@ -312,30 +281,12 @@ build_matlab() {
   for app_version in "${MATLAB_VERSIONS[@]}"; do
     ### Generate  ###
     "${ND_GEN_COMMAND[@]}" \
-        --pkg-manager apt \
         --base-image ${base_repo}:"${app_version}" \
-        --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
         --ttyd version=1.7.7 \
         --matlab version="${app_version}" \
         "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
-
-    ### Build ###
-    # Make sure the destination exists
-    mkdir -p "${CONTAINER_REPOS}/${app_name}"
-    if [ "${CONTAINER}" = "docker" ]; then
-      docker buildx build --platform linux/amd64 -t ${base_repo}:"${app_version}" -f bc_${app_name}/${app_name}_"${app_version}".Dockerfile .
-    elif [ "${CONTAINER}" = "singularity" ]; then
-      # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
-        echo "Singularity container already exists, skipping"
-      else
-        singularity build --nv "${CONTAINER_REPOS}"/${app_name}/${app_name}_"${app_version}".sif bc_${app_name}/${app_name}_"${app_version}".def
-        echo "Done building Singularity container"
-      fi
-    fi
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}/form.yml
-    yq -i '.attributes.app_version.options += [[ "'"${app_version}"'", "'"${app_version}"'"]]' bc_${app_name}_gui/form.yml
+    gen_container ${app_name} ${app_version}
   done
 }
 
@@ -351,13 +302,10 @@ build_fmriprep() {
   for app_version in "${FMRIPREP_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
     "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
-      --pkg-manager apt \
       --base-image nipreps/fmriprep:${app_version} \
-      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
       --ttyd version=1.7.7 \
       --copy $(pwd)/${app_name}_template/build/src/license.txt /usr/share/freesurfer_license.txt \
       --copy $(pwd)/${app_name}_template/build/src/99-fmriprep.sh /etc/profile.d/99-fmriprep.sh \
-      --user nonroot \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -373,14 +321,12 @@ build_pymol() {
   gen_template "${app_name}_gui" "PyMOL (GUI)" "Computational Biology" "fa://molecule"
   for app_version in "${PYMOL_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
-      --pkg-manager apt \
+    "${ND_GEN_COMMAND[@]}" \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
-      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
       --kasmvnc de=xfce kasm_distro="noble" single_app="/opt/conda/envs/pymol-env/bin/pymol" \
       --micromamba mamba_dependencies="name: pymol-env\nchannels: [conda-forge]\ndependencies: [python=3.10, pip, pymol-open-source=$app_version, fretraj]" \
-      --user nonroot \
+      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done

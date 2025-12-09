@@ -1,0 +1,8 @@
+---
+name: Space Ranger
+icon: fa://gear
+category: Batch Apps
+subcategory: Omics
+role: batch_connect
+description: |
+  This app will launch a batch job of Space Ranger. It is preset for optimal performance on the cluster.
