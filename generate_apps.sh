@@ -166,11 +166,12 @@ build_rstudio() {
     echo "Building ${app_name}_${app_version}"
     for variant in "r-ver" "ml-verse"; do
       # Generate the container definition
-      if ! docker manifest inspect docker.io/rocker/${variant}:${app_version} > /dev/null 2>&1; then
-        echo "Does not appear that rocker/${variant}:${app_version} is available, skipping"
+      base_image="rocker/${variant}:${app_version}"
+      if ! docker manifest inspect docker.io/${base_image} > /dev/null 2>&1; then
+        echo "Does not appear that ${base_image} is available, skipping"
         continue
       fi
-      base_image="rocker/${variant}:${app_version}"
+
       for with_libs in "" "-Seurat"; do
         # BioConductor is small enough, always included it
         bioconductor="${BIOCONDUCTOR_VERSIONS[$app_version]}"
