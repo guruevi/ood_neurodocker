@@ -152,13 +152,13 @@ build_rstudio() {
 
   # 4.5 is not yet available in the rocker/ml-verse images
   # When changing RStudio versions, also update the bioconductor version
-  RSTUDIO_VERSIONS=('4.5.0' '4.4.1' '4.3.0')
+  RSTUDIO_VERSIONS=('4.5.2' '4.5.0' '4.4.1' '4.3.0')
   declare -A BIOCONDUCTOR_VERSIONS=(
+    ["4.5.2"]="3.22"
     ["4.5.0"]="3.21"
     ["4.4.1"]="3.20"
     ["4.3.0"]="3.17"
   )
-  ML_VERSE_VERSIONS=("4.4.1" "4.3.0")
 
   gen_template ${app_name} "R (Shell)" "Servers"
   gen_template "${app_name}_gui" "RStudio (GUI)" "Servers"
