@@ -8,24 +8,26 @@ binaries:
     optional:
       addons: ""
       rprofile: ""
-      bioconductor: ""
-      seurat: "N"
   instructions: |
     echo "Starting build of RStudio image"
-    {% if self.rprofile %}
-    echo '{{ self.rprofile }}' > /usr/local/lib/R/etc/Rprofile.site
-    {% endif %}
-    {% if self.bioconductor %}
-    R -q -e "install.packages('BiocManager', quietly = TRUE); BiocManager::install(version = '{{ self.bioconductor }}', ask = FALSE)"
-    {% endif %}
+    R -e "install.packages('remotes')"
+    R -e "install.packages('DR.SC')"
+    R -e "install.packages('Seurat')"
+    R -e "BiocManager::install('Rsamtools')"
+    R -e "BiocManager::install('scater')"
+    R -e "BiocManager::install('TFBSTools')"
+    R -e "BiocManager::install('HDF5Array')"
+    R -e "BiocManager::install('rtracklayer')"
+    R -e "BiocManager::install('GenomicFeatures')"
+    R -e "install.packages('PRECAST')"
+    R -e "remotes::install_github('satijalab/azimuth', ref = 'master')"
+    R -e "BiocManager::install('Banksy')"
     {% if self.addons %}
     install2.r --error --skipinstalled --ncpus -1 {{ self.addons }}
     rm -rf /tmp/downloaded_packages
     {% endif %}
-    {% if self.seurat == "Y" %}
-    R -q -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes'); install.packages('Seurat')"
-    R -q -e "setRepositories(ind = 1:3, addURLs = c('https://satijalab.r-universe.dev', 'https://bnprks.r-universe.dev/')); install.packages(c("BPCells", "presto", "glmGamPoi"))"
-    R -q -e "install.packages('Signac'); remotes::install_github("satijalab/seurat-data", quiet = TRUE); remotes::install_github("satijalab/azimuth", quiet = TRUE); remotes::install_github("satijalab/seurat-wrappers", quiet = TRUE)"
+    {% if self.rprofile %}
+    echo '{{ self.rprofile }}' > /usr/local/lib/R/etc/Rprofile.site
     {% endif %}
   env:
     TZ: "America/New_York"
