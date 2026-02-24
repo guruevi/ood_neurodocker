@@ -3,12 +3,13 @@ name: kasmvnc
 url: https://www.kasmweb.com/kasmvnc
 binaries:
   urls:
-    bookworm: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_bookworm_1.3.4_amd64.deb
-    bullseye: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_bullseye_1.3.4_amd64.deb
-    buster: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_buster_1.3.4_amd64.deb
-    fclocal: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_focal_1.3.4_amd64.deb
-    jammy: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_jammy_1.3.4_amd64.deb
-    noble: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.4/kasmvncserver_noble_1.3.4_amd64.deb
+    bookworm: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_bookworm_1.4.0_amd64.deb
+    bullseye: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_bullseye_1.4.0_amd64.deb
+    buster: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.3/kasmvncserver_buster_1.3.3_amd64.deb
+    focal: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_focal_1.4.0_amd64.deb
+    jammy: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb
+    noble: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_noble_1.4.0_amd64.deb
+    trixie: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_trixie_1.4.0_amd64.deb
     bionic: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_bionic_1.3.1_amd64.deb
     google-chrome: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   arguments:
