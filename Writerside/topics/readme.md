@@ -36,7 +36,7 @@ and the image will be available locally.
 
 You can test the generated Docker image by running the following command (eg. for KasmVnc):
 ```bash
-export XVNC_OPTIONS="-websocketPort 8080 -disableBasicAuth"
+export XVNC_OPTIONS="-websocketPort 8080"
 docker run --rm -it -p 8080:8080 \
   -e XVNC_OPTIONS \
   -v ~/test_home:/home/nonroot \

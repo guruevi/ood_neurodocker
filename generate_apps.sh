@@ -388,7 +388,7 @@ build_mrtrix3() {
     "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image mrtrix3/mrtrix3:${app_version} \
       --ttyd version=1.7.7 \
-      --kasmvnc de=xfce kasm_distro="bookworm" \
+      --kasmvnc de=xfce kasm_distro="bookworm" single_app="/opt/mrtrix3/bin/mrview" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
