@@ -3,7 +3,7 @@ title: "${app}"
 cluster: "general"
 attributes:
   bc_account: "${app}"
-  bc_queue: "general"
+  bc_queue: "interactive"
   cores:
     widget: "number_field"
     max: 8
