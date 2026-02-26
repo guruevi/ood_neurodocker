@@ -21,4 +21,4 @@ singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_acco
 	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
 	-t enableSixel=true \
 	-t enableTrzsz=true \
-  /usr/bin/tmux -L "$TMUX_SOCKET" new -A -s "$TMUX_SESSION" setenv PATH $SINGULARITYENV_PREPEND_PATH:$PATH:$SINGULARITYENV_APPEND_PATH
+  /usr/bin/tmux -L "$TMUX_SOCKET" new -A -s "$TMUX_SESSION"

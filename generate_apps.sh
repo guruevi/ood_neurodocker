@@ -228,7 +228,6 @@ build_fsl() {
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
       --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
-      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -387,7 +386,7 @@ build_mrtrix3() {
     echo "Building ${app_name}_${app_version}"
     "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image mrtrix3/mrtrix3:${app_version} \
-      --ttyd version=1.7.7 \
+      --ttyd version=1.7.7 addpath=/opt/mrtrix3/bin \
       --kasmvnc de=xfce kasm_distro="bookworm" single_app="/opt/mrtrix3/bin/mrview" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
