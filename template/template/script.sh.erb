@@ -16,7 +16,9 @@ SINGULARITY_OPTIONS=""
 cd "${HOME}"
 singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif \
   ttyd -W -p "$port" -b "/node/${host}/${port}" -c "ttyd:${password}" -w "$HOME" \
-  -t 'cursorStyle=bar' \
+    -t 'cursorStyle=bar' \
 	-t 'cursorBlink=true' \
 	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
+	-t enableSixel=true \
+	-t enableTrzsz=true \
   /usr/bin/tmux -L "$TMUX_SOCKET" new -A -s "$TMUX_SESSION"
