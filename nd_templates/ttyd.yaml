@@ -20,7 +20,7 @@ binaries:
     chmod +x /usr/bin/ttyd
     {% if self.addpath %}
     echo "#!/usr/bin/env bash" > /etc/profile.d/tmux.sh 
-    echo "export PATH=\$PATH:{{ self.path }}" >> /etc/profile.d/tmux.sh
+    echo "export PATH=\$PATH:{{ self.addpath }}" >> /etc/profile.d/tmux.sh
     chmod +x /etc/profile.d/tmux.sh
     {% endif %}
   env:
