@@ -5,9 +5,16 @@
       "gpu" => {"general" => 64},
   }
 
+  slurm_args = []
+
   # GPU type
-  gpu_vram = gpu.blank? ? 0 : gpu.to_i
-  node_type = gpu_vram > 0 ? "gpu" : "any"
+  gpu = gpu.blank? ? 0 : gpu.to_i
+  node_type = gpu > 0 ? "gpu" : "any"
+
+  if gpu > 0
+    slurm_args = %W[--gres gpu:l40s.#{gpu}g:1]
+  end
+
 
   max_cores = cores_lookup[node_type][cluster]
   num_cores = cores.blank? ? 0 : cores.to_i
@@ -18,12 +25,6 @@
   memory = num_cores * (memory_multiplier.blank? ? 1024 : memory_multiplier.to_i)
   if memory > 261144
     memory = 261144 # Limit to slightly less than 256GB
-  end
-  slurm_args = []
-  if gpu_vram > 0
-    # You need to have at least the amount of VRAM accessible in RAM
-    memory = memory < (gpu_vram + 1) * 1024 ? (gpu_vram + 1) * 1024 : memory
-    slurm_args = %w[--gres gpu:1]
   end
 %>
 ---
