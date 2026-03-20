@@ -3,7 +3,7 @@ title: "${app}"
 cluster: "general"
 attributes:
   bc_account: "${app}"
-  bc_queue: "general"
+  bc_queue: "interactive"
   cores: 32
   app_version:
     required: true

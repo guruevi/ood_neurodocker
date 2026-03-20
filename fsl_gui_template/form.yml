@@ -3,7 +3,7 @@ title: "${app}"
 cluster: "general"
 attributes:
   bc_account: "${app}"
-  bc_queue: "general"
+  bc_queue: "interactive"
   cores:
     widget: "number_field"
     max: 8
@@ -18,7 +18,7 @@ attributes:
     label: "GPU Type:"
     value: 0
     help: |
-      Select a GPU type (if necessary).
+      Select a GPU type (if using eddy).
     options:
       - [ "None", 0 ]
       - [ "L40S - 6GB VRAM", 6 ]

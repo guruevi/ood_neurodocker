@@ -2,6 +2,7 @@
 export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps"
 export SINGULARITYENV_VNC_RESOLUTION="<%= context.bc_vnc_resolution %>"
 export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+export SINGULARITYENV_APPEND_PATH="/opt/mrtrix3/bin"
 export SINGULARITYENV_XVNC_OPTIONS="-websocketPort $port"
 
 SINGULARITY_OPTIONS=""
@@ -9,4 +10,4 @@ SINGULARITY_OPTIONS=""
   SINGULARITY_OPTIONS='--nv'
 <% end %>
 
-singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/kasm_startup.sh
+singularity exec ${SINGULARITY_OPTIONS} --pwd ${HOME} /opt/ood_apps/images/<%= context.bc_account %>/<%= context.bc_account %>_<%= context.app_version %>.sif /opt/kasm_startup.sh

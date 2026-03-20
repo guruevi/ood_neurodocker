@@ -9,6 +9,7 @@ binaries:
       - version
     optional:
       arch: "x86_64"
+      addpath: ""
   dependencies:
     apt:
       - tmux
@@ -17,5 +18,10 @@ binaries:
     {{ self.install_dependencies() }}
     curl -L --output /usr/bin/ttyd "{{ self.urls[self.version] }}.{{ self.arch }}"
     chmod +x /usr/bin/ttyd
+    {% if self.addpath %}
+    echo "#!/usr/bin/env bash" > /etc/profile.d/tmux.sh 
+    echo "export PATH=\$PATH:{{ self.addpath }}" >> /etc/profile.d/tmux.sh
+    chmod +x /etc/profile.d/tmux.sh
+    {% endif %}
   env:
     TZ: "America/New_York"

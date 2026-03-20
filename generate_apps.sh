@@ -36,6 +36,21 @@ if ! command -v yq &> /dev/null; then
   exit 1
 fi
 
+# Test if we have a global pip config file
+if [ -f /etc/pip.conf ]; then
+  GLOBAL_PIP_CONF="/etc/pip.conf"
+elif [ -f /etc/xdg/pip/pip.conf ]; then
+  GLOBAL_PIP_CONF="/etc/xdg/pip/pip.conf"
+elif [ -f /Library/Application\ Support/pip/pip.conf ]; then
+  GLOBAL_PIP_CONF="/Library/Application Support/pip/pip.conf"
+elif [ -f "$HOME/.config/pip/pip.conf" ]; then
+  GLOBAL_PIP_CONF="$HOME/.config/pip/pip.conf"
+else
+  echo "No PIP config found"
+  exit 2
+fi
+GLOBAL_PIP_CONF=$(cat "${GLOBAL_PIP_CONF}")
+
 gen_template() {
   app=$1
   title=$2
@@ -113,11 +128,10 @@ build_ants() {
   #gen_template "${app_name}_gui" "ANTS (GUI)" "ANTS (GUI)"
   for app_version in "${APP_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    "${ND_GEN_COMMAND[@]}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
       --ants version=2.6.0 \
-      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -133,12 +147,11 @@ build_afni() {
   gen_template "${app_name}_gui" "AFNI (GUI)" "MRI Analysis"
   for app_version in "${AFNI_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image ubuntu:24.04 \
       --kasmvnc de=xfce kasm_distro="noble" \
       --ttyd version=1.7.7 \
       --afni ubuntu_version="24" \
-      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -186,7 +199,7 @@ build_fsl() {
   gen_template "fsl_gui" "FSL (GUI)" "MRI Analysis" "fa://brain"
   for app_version in "${FSL_VERSIONS[@]}"; do
     echo "Building fsl_${app_version}"
-    "${ND_GEN_COMMAND[@]}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image debian:bullseye-slim \
       --kasmvnc de=xfce kasm_distro="bullseye" single_app="/usr/local/bin/fsl" \
       --ttyd version=1.7.7 \
@@ -194,7 +207,6 @@ build_fsl() {
       --copy fsl_gui_template/build/src/fsl_start.sh /usr/local/bin/fsl \
       --copy fsl_gui_template/build/src/fsl.sh /etc/profile.d/fsl.sh \
       --copy ${app_name}_gui_template/build/src/${app_name}.desktop /usr/share/applications/${app_name}.desktop \
-      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -210,14 +222,13 @@ build_spaceranger() {
   gen_template "spaceranger" "Space Ranger" "Omics" "fa://shuttle-space"
   echo "Building spaceranger"
   for app_version in "${SPACERANGER_VERSIONS[@]}"; do
-    "${ND_GEN_COMMAND[@]}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image debian:bullseye-slim \
       --ttyd version=1.7.7 \
       --copy /opt/ood_apps/spaceranger/spaceranger-${app_version}.tar.gz /.repro-bins/spaceranger-${app_version}.tar.gz \
       --run "tar -xzvf /.repro-bins/spaceranger-${app_version}.tar.gz -C /opt" \
       --run "rm -f /opt/spaceranger; ln -s /opt/spaceranger-${app_version} /opt/spaceranger" \
       --run "cp /opt/spaceranger/sourceme.bash /etc/profile.d/spaceranger.sh" \
-      "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
     sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/spaceranger/bin"@' bc_${app_name}/template/script.sh.erb
@@ -234,11 +245,12 @@ build_qupath() {
   gen_template "qupath" "QuPath (Shell)" "Image Processing" "fa://magnifying-glass"
   gen_template "qupath_gui" "QuPath (GUI)" "Image Processing" "fa://magnifying-glass"
   echo "Building qupath"
-  "${ND_GEN_COMMAND[@]}" \
+  "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image nvcr.io/nvidia/cuda:11.8.0-runtime-ubuntu22.04 \
+      --run "echo '$GLOBAL_PIP_CONF' > /etc/pip.conf" \
+      --novnc websockify_version="e81894751365afc19fe64fc9d0e5c6fc52655c36" novnc_proxy_version="7f5b51acf35963d125992bb05d32aa1b68cf87bf" \
       --kasmvnc de=xfce kasm_distro="jammy" single_app="/opt/QuPath/bin/qupath" \
       --qupath version=${app_version} \
-      "${ND_GEN_ARGS[@]}" \
   > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
   gen_container ${app_name} ${app_version}
   sed -i 's@export SINGULARITYENV_APPEND_PATH=""@export SINGULARITYENV_APPEND_PATH="/opt/QuPath/bin"@' bc_${app_name}/template/script.sh.erb
@@ -260,11 +272,10 @@ build_matlab() {
 
   for app_version in "${MATLAB_VERSIONS[@]}"; do
     ### Generate  ###
-    "${ND_GEN_COMMAND[@]}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
         --base-image ${base_repo}:"${app_version}" \
         --ttyd version=1.7.7 \
         --matlab version="${app_version}" \
-        "${ND_GEN_ARGS[@]}" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
@@ -281,7 +292,7 @@ build_fmriprep() {
 
   for app_version in "${FMRIPREP_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" "${CONTAINER}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image nipreps/fmriprep:${app_version} \
       --ttyd version=1.7.7 \
       --copy $(pwd)/${app_name}_template/build/src/license.txt /usr/share/freesurfer_license.txt \
@@ -301,7 +312,7 @@ build_pymol() {
   gen_template "${app_name}_gui" "PyMOL (GUI)" "Computational Biology" "fa://molecule"
   for app_version in "${PYMOL_VERSIONS[@]}"; do
     echo "Building ${app_name}_${app_version}"
-    "${ND_GEN_COMMAND[@]}" \
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image ubuntu:noble \
       --ttyd version=1.7.7 \
       --kasmvnc de=xfce kasm_distro="noble" single_app="/opt/conda/envs/pymol-env/bin/pymol" \
@@ -327,6 +338,25 @@ build_hdglio() {
       --ttyd version=1.7.7 \
       --virtualenv python_version="3.10" venv="hd_glio" packages="hd_glio==${app_version}" \
       "${ND_GEN_ARGS[@]}" \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    gen_container ${app_name} ${app_version}
+  done
+}
+
+########################################################################################################################
+# MRtrix3
+########################################################################################################################
+build_mrtrix3() {
+  app_name="mrtrix3"
+  MRTRIX3_VERSIONS=('3.0.8')
+  gen_template "${app_name}" "MRtrix3 (Shell)" "MRI Analysis" "fa://brain"
+  gen_template "${app_name}_gui" "MRtrix3 (GUI)" "MRI Analysis" "fa://brain"
+  for app_version in "${MRTRIX3_VERSIONS[@]}"; do
+    echo "Building ${app_name}_${app_version}"
+    "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
+      --base-image mrtrix3/mrtrix3:${app_version} \
+      --ttyd version=1.7.7 addpath=/opt/mrtrix3/bin \
+      --kasmvnc de=xfce kasm_distro="bookworm" single_app="/opt/mrtrix3/bin/mrview" \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done

@@ -6,22 +6,24 @@ attributes:
   bc_queue: "interactive"
   cores:
     widget: "number_field"
-    max: 8
+    max: 16
     min: 1
     step: 1
     value: 2
     label: "Number of cores"
-    help: "Enter a value between 1 and 8"
+    help: "Enter a value between 1 and 16"
   gpu:
     required: true
     widget: "select"
     label: "GPU Type:"
     value: 0
     help: |
-      Select a GPU type (if necessary).
+      Select a GPU type (only necessary for eddy).
     options:
       - [ "None", 0 ]
       - [ "L40S - 6GB VRAM", 6 ]
+      - [ "L40S - 12GB VRAM", 12 ]
+      - [ "L40S - 24GB VRAM", 24 ]
   app_version:
     required: true
     widget: "select"
@@ -29,7 +31,7 @@ attributes:
     help: |
       Select the version of this app you would like to use.
     options:
-  memory_multiplier: 1024
+  memory_multiplier: 8192
 form:
   - app_version
   - cores
