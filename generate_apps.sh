@@ -338,7 +338,7 @@ build_fastsurfer() {
     "${ND_GEN_COMMAND[@]}" "${ND_GEN_ARGS[@]}" \
       --base-image deepmi/fastsurfer:${app_version} \
       --ttyd version=1.7.7 \
-      --kasmvnc de=xfce kasm_distro="jammy" \
+      --kasmvnc de=xfce kasm_distro="noble" \
       --copy $(pwd)/${app_name}_template/build/src/license.txt /usr/local/freesurfer/.license \
       --copy $(pwd)/${app_name}_template/build/src/env.sh /etc/profile.d/freesurfer.sh \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"

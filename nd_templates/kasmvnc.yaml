@@ -89,7 +89,7 @@ binaries:
     mkdir -p /run/user
     chmod 1777 /run/user
     mkdir -p /etc/xdg/autostart
-    {% if self.kasm_distro == "jammy" %}
+    {% if self.kasm_distro == "noble" %}
     apt-get install -y libasound2t64
     {% else %}
     apt-get install -y libasound2
