@@ -70,7 +70,6 @@ binaries:
       - libnspr4
       - libnss3
       - libdatetime-perl
-      - libasound2
       - procps
       - chromium
   instructions: |
@@ -90,6 +89,11 @@ binaries:
     mkdir -p /run/user
     chmod 1777 /run/user
     mkdir -p /etc/xdg/autostart
+    {% if self.kasm_distro == "jammy" %}
+    apt-get install -y libasound2t64
+    {% else %}
+    apt-get install -y libasound2
+    {% endif %}
     {% if "Y" in self.but_can_it_run_doom %}
     apt-get update
     apt-get install -y chocolate-doom doom-wad-shareware prboom-plus freedoom
