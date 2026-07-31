@@ -342,6 +342,8 @@ build_fastsurfer() {
       --copy $(pwd)/${app_name}_template/build/src/license.txt /usr/local/freesurfer/.license \
       --copy $(pwd)/${app_name}_template/build/src/env.sh /etc/profile.d/freesurfer.sh \
     > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
+    # Replace %post with %post and mkdir /nonexistent
+    sed -i 's@%post@%post\nmkdir -p /nonexistent@g' "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}"
     gen_container ${app_name} ${app_version}
   done
 }
