@@ -14,6 +14,7 @@ binaries:
     apt:
       - tmux
   instructions: |
+    mkdir -p /nonexistent
     export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
     {{ self.install_dependencies() }}
     curl -L --output /usr/bin/ttyd "{{ self.urls[self.version] }}.{{ self.arch }}"
