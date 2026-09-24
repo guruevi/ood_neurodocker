@@ -14,7 +14,7 @@ export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\
 export SINGULARITYENV_PREPEND_PATH=""
 export SINGULARITYENV_APPEND_PATH=""
 
-SINGULARITY_OPTIONS=""
+SINGULARITY_OPTIONS="--writable-tmpfs"
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
