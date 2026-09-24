@@ -133,6 +133,8 @@ printf '%s\\n' "${{ND_GEN_ARGS[@]}}" > args.log
                     self.assertIn("libssl.so", recipe)
                     self.assertIn("libcrypto.so", recipe)
                     self.assertIn("libdl.so", recipe)
+                    if version == "7":
+                        self.assertIn("screen", recipe)
                     if version in ("8", "9"):
                         self.assertIn("libnsl", recipe)
                         self.assertIn("compat-openssl10", recipe)
@@ -155,6 +157,49 @@ printf '%s\\n' "${{ND_GEN_ARGS[@]}}" > args.log
         options = [opt[0] if isinstance(opt, list) else opt for opt in form["attributes"]["memory"]["options"]]
         self.assertEqual(options, ["8G", "16G", "32G", "64G", "128G", "256G"])
         self.assertFalse(form["attributes"]["app_version"]["options"])
+        script_erb = (directory / "template/script.sh.erb").read_text()
+        ruby_script = f"""
+require 'erb'
+require 'ostruct'
+require 'open3'
+
+class Object
+  def blank?
+    respond_to?(:empty?) ? !!empty? : !self
+  end
+  def present?
+    !blank?
+  end
+end
+
+template = <<'ERB'
+{script_erb}
+ERB
+
+erb = ERB.new(template, nil, '-')
+
+res_rhel7 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'rhel7', gpu: 0)).instance_eval {{ binding }})
+raise "rhel7 missing screen" unless res_rhel7.include?('/usr/bin/screen')
+raise "rhel7 should not include tmux" if res_rhel7.include?('/usr/bin/tmux')
+raise "rhel7 missing SCREEN_SESSION" unless res_rhel7.include?('SCREEN_SESSION=')
+
+res_rhel8 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'rhel8', gpu: 0)).instance_eval {{ binding }})
+raise "rhel8 missing tmux" unless res_rhel8.include?('/usr/bin/tmux')
+raise "rhel8 should not include screen" if res_rhel8.include?('/usr/bin/screen')
+raise "rhel8 missing TMUX_SOCKET" unless res_rhel8.include?('TMUX_SOCKET=')
+
+[res_rhel7, res_rhel8].each do |script|
+  Open3.popen3('bash', '-n') do |stdin, stdout, stderr, wait_thr|
+    stdin.write(script)
+    stdin.close
+    raise "bash -n failed: #{{stderr.read}}" unless wait_thr.value.success?
+  end
+end
+
+puts 'OK'
+"""
+        proc = subprocess.run(["ruby", "-e", ruby_script], text=True, capture_output=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr + proc.stdout)
 
     def test_desktop_gui(self):
         directory = ROOT / "desktop_gui_template"

@@ -22,14 +22,9 @@
     num_cores = max_cores
   end
 
-  if custom_mem.nil? && defined?(context)
-    custom_mem = context.memory rescue nil
-  end
-  has_custom_mem = custom_mem.respond_to?(:blank?) ? !custom_mem.blank? : (!custom_mem.nil? && custom_mem.to_s.strip != "")
-
   memory = (defined?(memory) ? memory.to_i : nil)
 
-  if memory.nil? or memory < 1
+  if memory.nil? or memory <= 0
     memory = num_cores * (memory_multiplier.blank? ? 1024 : memory_multiplier.to_i)
   end
 

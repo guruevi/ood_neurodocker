@@ -132,7 +132,7 @@ build_desktop() {
         base_image="centos:7"
         # CentOS 7 and EPEL 7 are end-of-life; both need their archive repositories.
         repo_setup="yum install -y epel-release && sed -i 's|^metalink=|#metalink=|; s|^mirrorlist=|#mirrorlist=|; s|^#baseurl=http://download.fedoraproject.org/pub/epel|baseurl=https://archives.fedoraproject.org/pub/archive/epel|' /etc/yum.repos.d/epel*.repo && sed -i 's|vault.centos.org/centos/\$releasever|archive.kernel.org/centos-vault/7.9.2009|g' /etc/yum.repos.d/CentOS-Base.repo"
-        desktop_packages="yum install -y jre ksh xterm mesa-libGLU lsb_release csh Xvfb 'xorg-x11-fonts*' apr-util glibc-devel compat-db47 && ln -sf libssl.so.10 /lib64/libssl.so && ln -sf libcrypto.so.10 /lib64/libcrypto.so && ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
+        desktop_packages="yum install -y jre ksh xterm mesa-libGLU lsb_release csh Xvfb 'xorg-x11-fonts*' apr-util glibc-devel compat-db47 screen && ln -sf libssl.so.10 /lib64/libssl.so && ln -sf libcrypto.so.10 /lib64/libcrypto.so && ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
         ;;
       rhel8)
         base_image="rockylinux:8"
