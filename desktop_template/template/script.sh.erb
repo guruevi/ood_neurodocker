@@ -3,7 +3,7 @@
 # Create a private socket directory with strict permissions
 mkdir -p -m 700 ~/.screen
 # Set SCREEN Environment Variables
-SINGULARITYENV_SCREENDIR=~/.screen
+export SINGULARITYENV_SCREENDIR=~/.screen
 
 <% else %>
 # Set TMUX Environment Variables
