@@ -17,9 +17,9 @@ source:
         -   locales
         -   unzip
         yum:
+        # curl is pre-installed by curl-minimal
         -   bzip2
         -   ca-certificates
-        -   curl
         -   glibc-common
         -   unzip
     env:
