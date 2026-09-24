@@ -1,0 +1,45 @@
+---
+title: "${app}"
+cluster: "general"
+attributes:
+  bc_account: "${app}"
+  bc_queue: "interactive"
+  cores:
+    widget: "number_field"
+    max: 64
+    min: 1
+    step: 2
+    value: 2
+    label: "Number of cores"
+    help: "Enter a value between 1 and 64"
+  memory:
+    widget: "select"
+    label: "Memory"
+    help: "Select the amount of memory for your session."
+    value: "8192"
+    options:
+      - [ "8G", "8192" ]
+      - [ "16G", "16384" ]
+      - [ "32G", "32768" ]
+      - [ "64G", "65536" ]
+      - [ "128G", "131072" ]
+      - [ "256G", "262144" ]
+  gpu: 0
+  app_version:
+    required: true
+    widget: "select"
+    label: "version:"
+    help: |
+      Select the RHEL-compatible desktop version you would like to use.
+    options:
+  memory_multiplier: 1024
+form:
+  - app_version
+  - cores
+  - memory
+  - gpu
+  - bc_account
+  - bc_num_hours
+  - bc_queue
+  - bc_email_on_started
+  - memory_multiplier

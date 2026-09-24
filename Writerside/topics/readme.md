@@ -37,7 +37,7 @@ and the image will be available locally.
 You can test the generated Docker image by running the following command (eg. for KasmVnc):
 ```bash
 export XVNC_OPTIONS="-websocketPort 8080"
-docker run --rm -it -p 8080:8080 \
+docker run --rm -it --platform linux/amd64 -p 127.0.0.1:8080:8080 \
   -e XVNC_OPTIONS \
   -v ~/test_home:/home/nonroot \
   --name kasmvnc \
@@ -47,6 +47,7 @@ docker run --rm -it -p 8080:8080 \
 Note this runs the /bin/bash entrypoint, so you can test the image interactively.
 Once inside the container, you can run the command to start the application, e.g.:
 ```bash
+printf 'none::wo\n' > "$HOME/.kasmpasswd"
 /opt/kasm_startup.sh
 ```
 
@@ -64,6 +65,72 @@ This MAY be slightly inefficient at build time but the composability is worth it
 
 # Documentation:
 Using WriterSide.
+
+# RHEL-compatible XFCE desktops
+
+`build_desktop` creates `bc_desktop` (ttyd/tmux shell) and `bc_desktop_gui`
+(KasmVNC/XFCE), sharing three images:
+
+| Version | Base image | Desktop packages | KasmVNC |
+| --- | --- | --- | --- |
+| `rhel7` | `centos:7` | CentOS Vault and archived EPEL 7 | 1.2.1 CentOS RPM |
+| `rhel8` | `rockylinux:8` | EPEL 8 and PowerTools | 1.4.0 Oracle 8 RPM |
+| `rhel9` | `rockylinux:9` | EPEL 9 and CRB | 1.4.0 Oracle 9 RPM |
+
+These are public RHEL-compatible distributions, not official Red Hat images.
+EL7 is end-of-life, uses frozen repositories and an older KasmVNC, and is provided
+only for legacy compatibility. Prefer EL8/9 for new deployments. ttyd 1.7.7 is
+installed as an EPEL RPM on EL8/9; EL7 uses the upstream binary because its older
+EPEL package does not support the OOD launcher's `-W` option.
+
+After installing the prerequisites above (including `rsync`, Mike Farah's `yq` v4,
+and a pip configuration discoverable by `generate_apps.sh`):
+
+```bash
+export CONTAINER=docker
+export CONTAINER_REPOS="$PWD/images"
+source generate_apps.sh
+build_desktop
+```
+
+This generates recipes and **builds all three images**, tagged `desktop:rhel7`,
+`desktop:rhel8`, and `desktop:rhel9`. For Singularity, set `CONTAINER=singularity`
+before sourcing; images are written to `${CONTAINER_REPOS}/desktop/desktop_rhel*.sif`.
+The OOD launch templates default to `/opt/ood_apps/images`; keep that deployment
+path or adjust the templates to match your site. Images and RPMs target x86_64.
+When composing the RPM templates directly, enable the matching EPEL and optional
+PowerTools/CRB repositories before invoking KasmVNC or ttyd.
+
+For a local Docker smoke test:
+
+```bash
+docker run --rm --platform linux/amd64 -p 127.0.0.1:8080:8080 \
+  -e XVNC_OPTIONS="-websocketPort 8080" \
+  desktop:rhel9 bash -c 'printf "none::wo\n" > "$HOME/.kasmpasswd"; exec /opt/kasm_startup.sh'
+```
+
+Open `http://localhost:8080`. KasmVNC basic authentication is disabled for the
+existing OOD proxy integration; never expose this test port publicly.
+The password file initialization matches the OOD `before.sh` launcher.
+
+After building all three images, run the automated runtime smoke tests:
+
+```bash
+bash tests/smoke_desktop.sh
+```
+
+These verify nonroot XFCE startup, KasmVNC and ttyd HTTP responses, and tmux in
+disposable containers without publishing ports. They do not validate browser
+interaction or the OOD proxy. Pass image tags to test only selected versions.
+
+Generator tests (no image builds):
+
+```bash
+bash -n generate_apps.sh
+python -m unittest discover -s tests -v
+```
+
+See `AGENTS.md` for repository-specific instructions for LLM contributors.
 
 # TODO:
 - Add a cleanup template that minifies the container (consideration: reproducibility if you eliminate sources)

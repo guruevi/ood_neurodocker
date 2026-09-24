@@ -13,15 +13,26 @@ binaries:
   dependencies:
     apt:
       - tmux
+    yum:
+      - tmux
+  # EPEL 7's ttyd predates the -W option used by the OOD launcher.
   instructions: |
-    export DEBIAN_FRONTEND=noninteractive TZ={{ self.env.TZ }}
+    export TZ={{ self.env.TZ }}
+    {% if self.pkg_manager == "apt" %}
+    export DEBIAN_FRONTEND=noninteractive
+    {% endif %}
     {{ self.install_dependencies() }}
-    curl -L --output /usr/bin/ttyd "{{ self.urls[self.version] }}.{{ self.arch }}"
-    chmod +x /usr/bin/ttyd
+    {% if self.pkg_manager == "yum" %}
+    . /etc/os-release
+    if [ "${VERSION_ID%%.*}" = "7" ]; then curl -fL --output /usr/bin/ttyd "{{ self.urls[self.version] }}.{{ self.arch }}"; else yum install -y ttyd-{{ self.version }}; fi
+    {% else %}
+    curl -fL --output /usr/bin/ttyd "{{ self.urls[self.version] }}.{{ self.arch }}"
+    {% endif %}
     {% if self.addpath %}
     echo "#!/usr/bin/env bash" > /etc/profile.d/tmux.sh 
     echo "export PATH=\$PATH:{{ self.addpath }}" >> /etc/profile.d/tmux.sh
     chmod +x /etc/profile.d/tmux.sh
     {% endif %}
+    chmod +x /usr/bin/ttyd
   env:
     TZ: "America/New_York"

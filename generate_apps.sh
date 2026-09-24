@@ -119,6 +119,46 @@ build_doom() {
 }
 
 ########################################################################################################################
+# RHEL-compatible XFCE desktops
+########################################################################################################################
+build_desktop() {
+  local app_name="desktop"
+  local app_version base_image repo_setup desktop_packages
+  gen_template "${app_name}" "Desktop (Shell)" "Desktops" "fa://desktop" || return
+  gen_template "${app_name}_gui" "Desktop (XFCE)" "Desktops" "fa://desktop" || return
+  for app_version in rhel7 rhel8 rhel9; do
+    case "${app_version}" in
+      rhel7)
+        base_image="centos:7"
+        # CentOS 7 and EPEL 7 are end-of-life; both need their archive repositories.
+        repo_setup="yum install -y epel-release && sed -i 's|^metalink=|#metalink=|; s|^mirrorlist=|#mirrorlist=|; s|^#baseurl=http://download.fedoraproject.org/pub/epel|baseurl=https://archives.fedoraproject.org/pub/archive/epel|' /etc/yum.repos.d/epel*.repo && sed -i 's|vault.centos.org/centos/\$releasever|archive.kernel.org/centos-vault/7.9.2009|g' /etc/yum.repos.d/CentOS-Base.repo"
+        desktop_packages="yum install -y jre ksh xterm mesa-libGLU lsb_release csh Xvfb 'xorg-x11-fonts*' apr-util glibc-devel compat-db47 && ln -sf libssl.so.10 /lib64/libssl.so && ln -sf libcrypto.so.10 /lib64/libcrypto.so && ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
+        ;;
+      rhel8)
+        base_image="rockylinux:8"
+        repo_setup="yum install -y dnf-plugins-core epel-release && yum config-manager --set-enabled powertools && dnf copr enable -y vowstar/compat-db47 epel-8-x86_64"
+        desktop_packages="yum install -y jre ksh xterm mesa-libGLU lsb_release csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10 && ln -sf libssl.so.10 /lib64/libssl.so && ln -sf libcrypto.so.10 /lib64/libcrypto.so && ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
+        ;;
+      rhel9)
+        base_image="rockylinux:9"
+        repo_setup="yum install -y dnf-plugins-core epel-release && yum config-manager --set-enabled crb && dnf copr enable -y vowstar/compat-db47 epel-9-x86_64 && dnf copr enable -y mroche/vfx-compatibility epel-9-x86_64"
+        desktop_packages="yum install -y jre ksh xterm mesa-libGLU lsb_release csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10 && ln -sf libssl.so.10 /lib64/libssl.so && ln -sf libcrypto.so.10 /lib64/libcrypto.so && ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
+        ;;
+    esac
+    echo "Building ${app_name}_${app_version}"
+    "${ND_GEN_COMMAND[@]}" \
+      --base-image "${base_image}" \
+      --run "${repo_setup}" \
+      --kasmvnc de=xfce kasm_distro="${app_version}" \
+      --ttyd version=1.7.7 \
+      --run "${desktop_packages}" \
+      "${ND_GEN_ARGS[@]}" --pkg-manager yum \
+    > "bc_${app_name}/${app_name}_${app_version}.${CONTAINER_FILE}" || return
+    gen_container "${app_name}" "${app_version}" || return
+  done
+}
+
+########################################################################################################################
 # ANTS
 ########################################################################################################################
 build_ants() {

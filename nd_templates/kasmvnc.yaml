@@ -11,6 +11,9 @@ binaries:
     noble: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_noble_1.4.0_amd64.deb
     trixie: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_trixie_1.4.0_amd64.deb
     bionic: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_bionic_1.3.1_amd64.deb
+    rhel7: https://github.com/kasmtech/KasmVNC/releases/download/v1.2.1/kasmvncserver_centos_core_1.2.1_x86_64.rpm
+    rhel8: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_oracle_8_1.4.0_x86_64.rpm
+    rhel9: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_oracle_9_1.4.0_x86_64.rpm
     google-chrome: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   arguments:
     required:
@@ -36,7 +39,7 @@ binaries:
           XVNC_OPTIONS="";
         fi
         if [ -z "$XSTARTUP" ]; then
-          XSTARTUP="/etc/X11/Xsession";
+          XSTARTUP="{{ '/usr/bin/xfce4-session' if self.pkg_manager == 'yum' else '/etc/X11/Xsession' }}";
         fi
         export $(dbus-launch)
         /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" -disableBasicAuth $XVNC_OPTIONS
@@ -72,16 +75,41 @@ binaries:
       - libdatetime-perl
       - procps
       - chromium
+    yum:
+      - dbus-x11
+      - liberation-fonts
+      - openssl
+      - procps-ng
+      - Thunar
+      - wget
+      - xdg-utils
+      - xfce4-panel
+      - xfce4-session
+      - xfce4-settings
+      - xfce4-terminal
+      - xfdesktop
+      - xfwm4
+      - xorg-x11-xauth
+      - xorg-x11-xinit
   instructions: |
+    export TZ="{{ self.env.TZ }}"
+    {% if self.pkg_manager == "apt" %}
     export DEBIAN_FRONTEND="noninteractive" TZ="{{ self.env.TZ }}"
     apt-get -y upgrade
+    {% endif %}
     {{ self.install_dependencies() }}
     rm -f /etc/xdg/autostart/xscreensaver.desktop
     mkdir -p /.repro-bins
+    {% if self.pkg_manager == "apt" %}
     curl -fsL -o /.repro-bins/kasmvncserver.deb "{{ self.urls[self.kasm_distro] }}"
-    apt-get install /.repro-bins/kasmvncserver.deb
+    apt-get install -y /.repro-bins/kasmvncserver.deb
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem /opt/cert.pem
     cp /etc/ssl/private/ssl-cert-snakeoil.key /opt/key.pem
+    {% elif self.pkg_manager == "yum" %}
+    curl -fsL -o /.repro-bins/kasmvncserver.rpm "{{ self.urls[self.kasm_distro] }}"
+    yum install -y /.repro-bins/kasmvncserver.rpm
+    openssl req -x509 -nodes -newkey rsa:2048 -days 3650 -subj "/CN=localhost" -keyout /opt/key.pem -out /opt/cert.pem
+    {% endif %}
     wget https://github.com/mikefarah/yq/releases/download/v4.49.2/yq_linux_amd64 -O /usr/local/bin/yq
     chmod +x /usr/local/bin/yq
     yq eval -n --output-format=yaml '.network.ssl.require_ssl = false | .network.ssl.pem_certificate = "/opt/cert.pem" | .network.ssl.pem_key = "/opt/key.pem" | .user_session.session_type = "exclusive" | .command_line.prompt = false | .logging.log_dest = "stdout"' > /etc/kasmvnc/kasmvnc.yaml
@@ -90,8 +118,12 @@ binaries:
     chmod 1777 /run/user
     mkdir -p /etc/xdg/autostart
     {% if "Y" in self.but_can_it_run_doom %}
+    {% if self.pkg_manager == "apt" %}
     apt-get update
     apt-get install -y chocolate-doom doom-wad-shareware prboom-plus freedoom
+    {% elif self.pkg_manager == "yum" %}
+    yum install -y chocolate-doom freedoom
+    {% endif %}
     {% endif %}
     {% if self.single_app != "NO" %}
     echo "[Desktop Entry]\nType=Application\nExec={{ self.single_app }}\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName={{ self.single_app.split('/')[-1] }}\nComment=Start {{ self.single_app.split('/')[-1] }}" > /etc/xdg/autostart/{{ self.single_app.split('/')[-1] }}.desktop
@@ -102,7 +134,7 @@ binaries:
   env:
     VNC_RESOLUTION: "1024x768"
     VNC_COL_DEPTH: "24"
-    VNC_ENTRYPOINT: "/opt/vnc_startup.sh"
+    VNC_ENTRYPOINT: "/opt/kasm_startup.sh"
     VNC_DE: "xfce"
     VNC_DISPLAY: "1"
     TZ: "America/New_York"
