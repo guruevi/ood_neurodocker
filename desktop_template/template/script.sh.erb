@@ -1,20 +1,23 @@
 #!/usr/bin/env bash
 <% if context.app_version == "rhel7" %>
+# Create a private socket directory with strict permissions
+mkdir -p -m 700 ~/.screen
 # Set SCREEN Environment Variables
-SCREEN_SESSION="J${SLURM_JOB_ID}"
+SINGULARITYENV_SCREEN_SESSION="J${SLURM_JOB_ID}"
+SINGULARITYENV_SCREENDIR=~/.screen
+
 <% else %>
 # Set TMUX Environment Variables
 TMUX_SOCKET="J${SLURM_JOB_ID}.sock"
 TMUX_SESSION="J${SLURM_JOB_ID}"
 <% end %>
 
-export SINGULARITY_BIND="/mnt,/tmp,/opt/ood_apps"
+export SINGULARITY_BIND="/mnt,/tmp,/run,/opt/ood_apps"
 export SINGULARITYENV_PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 
 export SINGULARITYENV_PREPEND_PATH=""
 export SINGULARITYENV_APPEND_PATH=""
 
-SINGULARITY_OPTIONS="--writable-tmpfs"
 <% if context.gpu.present? and context.gpu.to_i > 0 %>
   SINGULARITY_OPTIONS='--nv'
 <% end %>
