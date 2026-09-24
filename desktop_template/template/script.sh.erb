@@ -3,7 +3,6 @@
 # Create a private socket directory with strict permissions
 mkdir -p -m 700 ~/.screen
 # Set SCREEN Environment Variables
-SINGULARITYENV_SCREEN_SESSION="J${SLURM_JOB_ID}"
 SINGULARITYENV_SCREENDIR=~/.screen
 
 <% else %>
@@ -29,4 +28,4 @@ singularity exec ${SINGULARITY_OPTIONS} /opt/ood_apps/images/<%= context.bc_acco
 	-t 'theme={"background": "#282a36", "foreground": "#f8f8f2"}' \
 	-t enableSixel=true \
 	-t enableTrzsz=true \
-<% if context.app_version == "rhel7" %>  /usr/bin/screen -xR -S "$SCREEN_SESSION"<% else %>  /usr/bin/tmux -L "$TMUX_SOCKET" new -A -s "$TMUX_SESSION"<% end %>
+<% if context.app_version == "rhel7" %>  /usr/bin/screen -xR -S "J${SLURM_JOB_ID}"<% else %>  /usr/bin/tmux -L "$TMUX_SOCKET" new -A -s "$TMUX_SESSION"<% end %>
