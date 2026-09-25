@@ -8,8 +8,8 @@ attributes:
     widget: "number_field"
     max: 64
     min: 1
-    step: 2
-    value: 2
+    step: 1
+    value: 1
     label: "Number of cores"
     help: "Enter a value between 1 and 64"
   memory:
