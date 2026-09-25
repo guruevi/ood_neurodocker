@@ -29,8 +29,9 @@ attributes:
     required: true
     widget: "select"
     label: "version:"
+    value: "rhel9"
     help: |
-      Select the RHEL-compatible desktop version you would like to use.
+      Select the desktop version you would like to use.
     options:
   memory_multiplier: 1024
 form:
