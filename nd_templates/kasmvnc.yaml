@@ -3,17 +3,17 @@ name: kasmvnc
 url: https://www.kasmweb.com/kasmvnc
 binaries:
   urls:
-    bookworm: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_bookworm_1.4.0_amd64.deb
-    bullseye: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_bullseye_1.4.0_amd64.deb
-    buster: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.3/kasmvncserver_buster_1.3.3_amd64.deb
-    focal: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_focal_1.4.0_amd64.deb
-    jammy: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_jammy_1.4.0_amd64.deb
-    noble: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_noble_1.4.0_amd64.deb
-    trixie: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_trixie_1.4.0_amd64.deb
+    bookworm: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_bookworm_1.5.0_amd64.deb
+    bullseye: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_bullseye_1.5.0_amd64.deb
+    buster: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_buster_1.5.0_amd64.deb
+    focal: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_focal_1.5.0_amd64.deb
+    jammy: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_jammy_1.5.0_amd64.deb
+    noble: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_noble_1.5.0_amd64.deb
+    trixie: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_trixie_1.5.0_amd64.deb
     bionic: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_bionic_1.3.1_amd64.deb
-    rhel7: https://github.com/kasmtech/KasmVNC/releases/download/v1.2.1/kasmvncserver_centos_core_1.2.1_x86_64.rpm
-    rhel8: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_oracle_8_1.4.0_x86_64.rpm
-    rhel9: https://github.com/kasmtech/KasmVNC/releases/download/v1.4.0/kasmvncserver_oracle_9_1.4.0_x86_64.rpm
+    rhel7: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_centos_core_1.3.1_x86_64.rpm
+    rhel8: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_oracle_8_1.5.0_x86_64.rpm
+    rhel9: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_oracle_9_1.5.0_x86_64.rpm
     google-chrome: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   arguments:
     required:
@@ -83,12 +83,6 @@ binaries:
       - Thunar
       - wget
       - xdg-utils
-      - xfce4-panel
-      - xfce4-session
-      - xfce4-settings
-      - xfce4-terminal
-      - xfdesktop
-      - xfwm4
       - xorg-x11-xauth
       - xorg-x11-xinit
   instructions: |
@@ -106,6 +100,7 @@ binaries:
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem /opt/cert.pem
     cp /etc/ssl/private/ssl-cert-snakeoil.key /opt/key.pem
     {% elif self.pkg_manager == "yum" %}
+    yum groupinstall -y "Xfce"
     curl -fsL -o /.repro-bins/kasmvncserver.rpm "{{ self.urls[self.kasm_distro] }}"
     yum install -y /.repro-bins/kasmvncserver.rpm
     openssl req -x509 -nodes -newkey rsa:2048 -days 3650 -subj "/CN=localhost" -keyout /opt/key.pem -out /opt/cert.pem
