@@ -66,16 +66,18 @@ This MAY be slightly inefficient at build time but the composability is worth it
 # Documentation:
 Using WriterSide.
 
-# RHEL-compatible XFCE desktops
+# Desktop environments
 
 `build_desktop` creates `bc_desktop` (ttyd/tmux shell) and `bc_desktop_gui`
-(KasmVNC/XFCE), sharing three images:
+(KasmVNC/XFCE), sharing five images:
 
 | Version | Base image | Desktop packages | KasmVNC |
 | --- | --- | --- | --- |
 | `rhel7` | `centos:7` | CentOS Vault and archived EPEL 7 | 1.2.1 CentOS RPM |
 | `rhel8` | `rockylinux:8` | EPEL 8 and PowerTools | 1.4.0 Oracle 8 RPM |
 | `rhel9` | `rockylinux:9` | EPEL 9 and CRB | 1.4.0 Oracle 9 RPM |
+| `ubuntu22` | `ubuntu:22.04` | Ubuntu Jammy repositories | 1.5.0 Jammy DEB |
+| `ubuntu24` | `ubuntu:24.04` | Ubuntu Noble repositories | 1.5.0 Noble DEB |
 
 These are public RHEL-compatible distributions, not official Red Hat images.
 EL7 is end-of-life, uses frozen repositories and an older KasmVNC, and is provided
@@ -93,9 +95,9 @@ source generate_apps.sh
 build_desktop
 ```
 
-This generates recipes and **builds all three images**, tagged `desktop:rhel7`,
-`desktop:rhel8`, and `desktop:rhel9`. For Singularity, set `CONTAINER=singularity`
-before sourcing; images are written to `${CONTAINER_REPOS}/desktop/desktop_rhel*.sif`.
+This generates recipes and **builds all images**, tagged `desktop:rhel7`,
+`desktop:rhel8`, `desktop:rhel9`, `desktop:ubuntu22`, and `desktop:ubuntu24`. For Singularity, set `CONTAINER=singularity`
+before sourcing; images are written to `${CONTAINER_REPOS}/desktop/desktop_*.sif`.
 The OOD launch templates default to `/opt/ood_apps/images`; keep that deployment
 path or adjust the templates to match your site. Images and RPMs target x86_64.
 When composing the RPM templates directly, enable the matching EPEL and optional

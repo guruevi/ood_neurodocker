@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [ "$#" -eq 0 ]; then
-  set -- desktop:rhel7 desktop:rhel8 desktop:rhel9
+  set -- desktop:rhel7 desktop:rhel8 desktop:rhel9 desktop:ubuntu22 desktop:ubuntu24
 fi
 
 for image in "$@"; do
@@ -13,9 +13,13 @@ for image in "$@"; do
 set -euo pipefail
 image="$1"
 test "$(id -u)" -ne 0
-rpm -q kasmvncserver xfce4-session tmux
-if [ "$image" = "desktop:rhel7" ]; then
-  rpm -q screen
+if command -v dpkg-query > /dev/null 2>&1; then
+  dpkg-query -W kasmvncserver xfce4-session tmux
+else
+  rpm -q kasmvncserver xfce4-session tmux
+  if [ "$image" = "desktop:rhel7" ]; then
+    rpm -q screen
+  fi
 fi
 ttyd --version
 bash -n /opt/kasm_startup.sh

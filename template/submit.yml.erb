@@ -22,14 +22,16 @@
     num_cores = max_cores
   end
 
-  memory = (defined?(memory) ? memory.to_i : nil)
+  req_mem = (respond_to?(:memory) ? send(:memory) : (defined?(memory) ? memory : nil))
+  req_mem = req_mem.to_s.strip
+  mem_val = req_mem.empty? ? nil : req_mem.to_i
 
-  if memory.nil? or memory <= 0
-    memory = num_cores * (memory_multiplier.blank? ? 1024 : memory_multiplier.to_i)
+  if mem_val.nil? or mem_val <= 0
+    mem_val = num_cores * (memory_multiplier.blank? ? 1024 : memory_multiplier.to_i)
   end
 
-  if memory > 261144
-    memory = 261144 # Limit to slightly less than 256GB
+  if mem_val > 261144
+    mem_val = 261144 # Limit to slightly less than 256GB
   end
 %>
 ---
@@ -41,7 +43,7 @@ script:
     - "--cpus-per-task"
     - "<%= num_cores %>"
     - "--mem"
-    - "<%= memory %>"
+    - "<%= mem_val %>"
     - "--nodes"
     - "1"
   <%- slurm_args.each do |arg| %>

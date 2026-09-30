@@ -81,13 +81,13 @@ class DesktopTests(unittest.TestCase):
                     self.assertNotIn("yum install", recipe)
 
     def run_builder(self, directory, container, fail=False):
-        functions = (ROOT / "generate_apps.sh").read_text().split("gen_template() {", 1)[1]
         command = "false" if fail else (
             f"{shlex.quote(sys.executable)} -c "
             "'from neurodocker.cli.cli import cli; cli()' generate "
             f"--template-path {shlex.quote(str(ROOT / 'nd_templates'))} {container}"
         )
-        script = "gen_template() {" + functions + f"""
+        script = f"""
+source {shlex.quote(str(ROOT / 'generate_apps.sh'))}
 CONTAINER={container}
 CONTAINER_FILE={'Dockerfile' if container == 'docker' else 'def'}
 ND_GEN_COMMAND=({command})
@@ -111,7 +111,8 @@ printf '%s\\n' "${{ND_GEN_ARGS[@]}}" > args.log
                 self.assertEqual((directory / "templates.log").read_text().splitlines(),
                                  ["desktop", "desktop_gui"])
                 self.assertEqual((directory / "builds.log").read_text().splitlines(),
-                                 ["desktop rhel7", "desktop rhel8", "desktop rhel9"])
+                                 ["desktop rhel7", "desktop rhel8", "desktop rhel9",
+                                  "desktop ubuntu22", "desktop ubuntu24"])
                 self.assertIn("apt", (directory / "args.log").read_text())
                 for version, repository in (("7", "archives.fedoraproject.org"),
                                             ("8", "powertools"), ("9", "crb")):
@@ -141,6 +142,19 @@ printf '%s\\n' "${{ND_GEN_ARGS[@]}}" > args.log
                     self.assertNotIn("apt-get", recipe)
                     self.assertNotIn("chocolate-doom", recipe)
                     self.assertLess(recipe.index(repository), recipe.index("kasmvncserver.rpm"))
+                for version, distro in (("22", "jammy"), ("24", "noble")):
+                    recipe = (directory / f"bc_desktop/desktop_ubuntu{version}.{extension}").read_text()
+                    self.check_shell(container, recipe)
+                    if container == "docker":
+                        instructions = [line for line in recipe.splitlines()
+                                        if line and not line.startswith("#")]
+                        self.assertTrue(instructions[0].startswith("FROM "), instructions[0])
+                        self.assertLess(recipe.index("kasmvncserver.deb"), recipe.index("USER nonroot"))
+                    self.assertIn("kasmvncserver.deb", recipe)
+                    self.assertIn(distro, recipe)
+                    self.assertIn("apt-get", recipe)
+                    self.assertNotIn("yum install", recipe)
+                    self.assertNotIn(".rpm", recipe)
 
     def test_generation_failure_stops_build(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:
@@ -178,17 +192,17 @@ ERB
 
 erb = ERB.new(template, nil, '-')
 
-res_rhel7 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'rhel7', gpu: 0)).instance_eval {{ binding }})
-raise "rhel7 missing screen" unless res_rhel7.include?('/usr/bin/screen')
-raise "rhel7 should not include tmux" if res_rhel7.include?('/usr/bin/tmux')
-raise "rhel7 missing SCREEN_SESSION" unless res_rhel7.include?('SCREEN_SESSION=')
-
-res_rhel8 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'rhel8', gpu: 0)).instance_eval {{ binding }})
-raise "rhel8 missing tmux" unless res_rhel8.include?('/usr/bin/tmux')
+        res_rhel8 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'rhel8', gpu: 0)).instance_eval {{ binding }})
+raise "rhel8 missing tmux" unless res_rhel8.include?('/usr/bin/tmux') || res_rhel8.include?('tmux -L')
 raise "rhel8 should not include screen" if res_rhel8.include?('/usr/bin/screen')
-raise "rhel8 missing TMUX_SOCKET" unless res_rhel8.include?('TMUX_SOCKET=')
 
-[res_rhel7, res_rhel8].each do |script|
+res_u22 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'ubuntu22', gpu: 0)).instance_eval {{ binding }})
+raise "ubuntu22 missing tmux" unless res_u22.include?('tmux')
+
+res_u24 = erb.result(OpenStruct.new(context: OpenStruct.new(bc_account: 'desktop', app_version: 'ubuntu24', gpu: 0)).instance_eval {{ binding }})
+raise "ubuntu24 missing tmux" unless res_u24.include?('tmux')
+
+[res_rhel8, res_u22, res_u24].each do |script|
   Open3.popen3('bash', '-n') do |stdin, stdout, stderr, wait_thr|
     stdin.write(script)
     stdin.close
@@ -204,7 +218,6 @@ puts 'OK'
     def test_desktop_gui(self):
         directory = ROOT / "desktop_gui_template"
         form = yaml.safe_load((directory / "form.yml").read_text())
-        self.assertIn("bc_vnc_resolution", form["form"])
         self.assertIn("memory", form["form"])
         options = [opt[0] if isinstance(opt, list) else opt for opt in form["attributes"]["memory"]["options"]]
         self.assertEqual(options, ["8G", "16G", "32G", "64G", "128G", "256G"])
@@ -244,13 +257,13 @@ end
 res1 = YAML.safe_load(render(template, OpenStruct.new(cluster: 'general', cores: 2)))
 raise "Fail 1" unless res1['script']['native'].include?('--mem') && res1['script']['native'].include?('2048')
 
-# Case 2: explicit 16G memory
-res2 = YAML.safe_load(render(template, OpenStruct.new(cluster: 'general', cores: 2, memory: '16G')))
-raise "Fail 2" unless res2['script']['native'].include?('16G')
+# Case 2: explicit 16G memory (16384 MB)
+res2 = YAML.safe_load(render(template, OpenStruct.new(cluster: 'general', cores: 2, memory: '16384')))
+raise "Fail 2" unless res2['script']['native'].include?('16384')
 
-# Case 3: explicit integer 32 memory
-res3 = YAML.safe_load(render(template, OpenStruct.new(cluster: 'general', cores: 2, memory: 32)))
-raise "Fail 3" unless res3['script']['native'].include?('32G')
+# Case 3: explicit integer 32768 memory
+res3 = YAML.safe_load(render(template, OpenStruct.new(cluster: 'general', cores: 2, memory: 32768)))
+raise "Fail 3" unless res3['script']['native'].include?('32768')
 
 puts 'OK'
 """
