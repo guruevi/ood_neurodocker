@@ -15,10 +15,16 @@ image="$1"
 test "$(id -u)" -ne 0
 if command -v dpkg-query > /dev/null 2>&1; then
   dpkg-query -W kasmvncserver xfce4-session tmux
+  if [ "$image" = "desktop:ubuntu24" ]; then
+    dpkg-query -W google-chrome-stable
+  fi
 else
   rpm -q kasmvncserver xfce4-session tmux
   if [ "$image" = "desktop:rhel7" ]; then
     rpm -q screen
+  fi
+  if [ "$image" = "desktop:rhel9" ]; then
+    rpm -q google-chrome-stable
   fi
 fi
 ttyd --version

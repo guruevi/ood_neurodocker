@@ -59,6 +59,10 @@ class DesktopTests(unittest.TestCase):
                     self.assertIn("openssl req", recipe)
                     self.assertIn("ttyd-1.7.7", recipe)
                     self.assertIn("ttyd.x86_64", recipe)
+                    if version == "9":
+                        self.assertIn("google-chrome.rpm", recipe)
+                    else:
+                        self.assertNotIn("google-chrome", recipe)
                     self.assertNotIn("apt-get", recipe)
                     self.assertNotIn(".deb", recipe)
                     self.assertNotIn("DEBIAN_FRONTEND", recipe)
@@ -69,7 +73,7 @@ class DesktopTests(unittest.TestCase):
     def test_existing_debian_recipes(self):
         template = yaml.safe_load((ROOT / "nd_templates/kasmvnc.yaml").read_text())
         for distro, url in template["binaries"]["urls"].items():
-            if distro == "google-chrome" or not url.endswith(".deb"):
+            if distro.startswith("google-chrome") or not url.endswith(".deb"):
                 continue
             for container in ("docker", "singularity"):
                 with self.subTest(container=container, distro=distro):
@@ -78,6 +82,10 @@ class DesktopTests(unittest.TestCase):
                     self.assertIn("kasmvncserver.deb", recipe)
                     self.assertIn("ssl-cert-snakeoil.pem", recipe)
                     self.assertIn("ttyd.x86_64", recipe)
+                    if distro == "noble":
+                        self.assertIn("google-chrome.deb", recipe)
+                    else:
+                        self.assertNotIn("google-chrome", recipe)
                     self.assertNotIn("yum install", recipe)
 
     def run_builder(self, directory, container, fail=False):
@@ -139,6 +147,10 @@ printf '%s\\n' "${{ND_GEN_ARGS[@]}}" > args.log
                     if version in ("8", "9"):
                         self.assertIn("libnsl", recipe)
                         self.assertIn("compat-openssl10", recipe)
+                    if version == "9":
+                        self.assertIn("google-chrome.rpm", recipe)
+                    else:
+                        self.assertNotIn("google-chrome", recipe)
                     self.assertNotIn("apt-get", recipe)
                     self.assertNotIn("chocolate-doom", recipe)
                     self.assertLess(recipe.index(repository), recipe.index("kasmvncserver.rpm"))
@@ -153,6 +165,10 @@ printf '%s\\n' "${{ND_GEN_ARGS[@]}}" > args.log
                     self.assertIn("kasmvncserver.deb", recipe)
                     self.assertIn(distro, recipe)
                     self.assertIn("apt-get", recipe)
+                    if version == "24":
+                        self.assertIn("google-chrome.deb", recipe)
+                    else:
+                        self.assertNotIn("google-chrome", recipe)
                     self.assertNotIn("yum install", recipe)
                     self.assertNotIn(".rpm", recipe)
 

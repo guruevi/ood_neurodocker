@@ -14,7 +14,8 @@ binaries:
     rhel7: https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvncserver_centos_core_1.3.1_x86_64.rpm
     rhel8: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_oracle_8_1.5.0_x86_64.rpm
     rhel9: https://github.com/kasmtech/KasmVNC/releases/download/v1.5.0/kasmvncserver_oracle_9_1.5.0_x86_64.rpm
-    google-chrome: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    google-chrome-deb: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    google-chrome-rpm: https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
   arguments:
     required:
       - kasm_distro
@@ -74,7 +75,6 @@ binaries:
       - libnss3
       - libdatetime-perl
       - procps
-      - chromium
     yum:
       - dbus-x11
       - liberation-fonts
@@ -97,12 +97,20 @@ binaries:
     {% if self.pkg_manager == "apt" %}
     curl -fsL -o /.repro-bins/kasmvncserver.deb "{{ self.urls[self.kasm_distro] }}"
     apt-get install -y /.repro-bins/kasmvncserver.deb
+    {% if self.kasm_distro == "noble" %}
+    curl -fsL -o /.repro-bins/google-chrome.deb "{{ self.urls['google-chrome-deb'] }}"
+    apt-get install -y /.repro-bins/google-chrome.deb
+    {% endif %}
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem /opt/cert.pem
     cp /etc/ssl/private/ssl-cert-snakeoil.key /opt/key.pem
     {% elif self.pkg_manager == "yum" %}
     yum groupinstall -y "Xfce"
     curl -fsL -o /.repro-bins/kasmvncserver.rpm "{{ self.urls[self.kasm_distro] }}"
     yum install -y /.repro-bins/kasmvncserver.rpm
+    {% if self.kasm_distro == "rhel9" %}
+    curl -fsL -o /.repro-bins/google-chrome.rpm "{{ self.urls['google-chrome-rpm'] }}"
+    yum install -y /.repro-bins/google-chrome.rpm
+    {% endif %}
     openssl req -x509 -nodes -newkey rsa:2048 -days 3650 -subj "/CN=localhost" -keyout /opt/key.pem -out /opt/cert.pem
     {% endif %}
     wget https://github.com/mikefarah/yq/releases/download/v4.49.2/yq_linux_amd64 -O /usr/local/bin/yq
