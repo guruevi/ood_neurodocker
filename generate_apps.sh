@@ -84,7 +84,7 @@ gen_container() {
       docker buildx build --platform linux/amd64 -t ${app_name}:${app_version} -f bc_${app_name}/${app_name}_${app_version}.Dockerfile .
     elif [ "${CONTAINER}" = "singularity" ]; then
       # Make sure we don't overwrite the container
-      if [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
+      if [ -z "${SKIP_SIF_CHECK}" ] && [ -f "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" ]; then
         echo "Singularity container already exists, skipping"
       else
         singularity build "${CONTAINER_REPOS}/${app_name}/${app_name}_${app_version}.sif" "bc_${app_name}/${app_name}_${app_version}.def"

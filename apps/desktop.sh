@@ -17,7 +17,7 @@ build_desktop() {
           "sed -i 's|vault.centos.org/centos/\$releasever|archive.kernel.org/centos-vault/7.9.2009|g' /etc/yum.repos.d/CentOS-Base.repo"
         )
         desktop_packages=(
-          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' apr-util glibc-devel compat-db47 screen"
+          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' apr-util glibc-devel compat-db47 screen libXScrnSaver"
           "ln -sf libssl.so.10 /lib64/libssl.so"
           "ln -sf libcrypto.so.10 /lib64/libcrypto.so"
           "ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
@@ -32,7 +32,7 @@ build_desktop() {
           "dnf copr enable -y vowstar/compat-db47 epel-8-x86_64"
         )
         desktop_packages=(
-          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10"
+          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10 libXScrnSaver"
           "ln -sf libssl.so.10 /lib64/libssl.so"
           "ln -sf libcrypto.so.10 /lib64/libcrypto.so"
           "ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
@@ -48,7 +48,7 @@ build_desktop() {
           "dnf copr enable -y mroche/vfx-compatibility epel-9-x86_64"
         )
         desktop_packages=(
-          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10"
+          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10 libXScrnSaver"
           "ln -sf libssl.so.10 /lib64/libssl.so"
           "ln -sf libcrypto.so.10 /lib64/libcrypto.so"
           "ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
@@ -58,10 +58,18 @@ build_desktop() {
       ubuntu22)
         base_image="ubuntu:22.04"
         pkg_manager="apt"
+        desktop_packages=(
+          "apt-get update"
+          "apt-get install -y default-jre ksh xterm libglu1-mesa csh xvfb libnsl2 libaprutil1 libc6-dev libxss1"
+        )
         ;;
       ubuntu24)
         base_image="ubuntu:24.04"
         pkg_manager="apt"
+        desktop_packages=(
+          "apt-get update"
+          "apt-get install -y default-jre ksh xterm libglu1-mesa csh xvfb libnsl2 libaprutil1 libc6-dev libxss1"
+        )
         ;;
     esac
     echo "Building ${app_name}_${app_version}"
