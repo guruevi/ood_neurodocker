@@ -48,7 +48,7 @@ build_desktop() {
           "dnf copr enable -y mroche/vfx-compatibility epel-9-x86_64"
         )
         desktop_packages=(
-          "yum install -y jre ksh xterm mesa-libGLU redhat-lsb-core csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10 libXScrnSaver"
+          "yum install -y jre ksh xterm mesa-libGLU python3-distro csh Xvfb 'xorg-x11-fonts*' libnsl apr-util glibc-devel compat-db47 compat-openssl10 libXScrnSaver"
           "ln -sf libssl.so.10 /lib64/libssl.so"
           "ln -sf libcrypto.so.10 /lib64/libcrypto.so"
           "ln -sf /lib64/libdl.so.2 /lib64/libdl.so"
