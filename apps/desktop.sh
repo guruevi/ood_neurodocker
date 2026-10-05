@@ -58,11 +58,17 @@ build_desktop() {
       ubuntu22)
         base_image="ubuntu:22.04"
         pkg_manager="apt"
-        desktop_packages=(
-          "add-apt-repository main"
+        repo_setup=(
+	  "apt-get update"
+          "apt install -y software-properties-common"
+	  "add-apt-repository main"
           "add-apt-repository universe"
           "apt-get update"
-          "apt-get install -y default-jre ksh xterm libglu1-mesa csh xvfb libnsl2 libaprutil1 libc6-dev libxss1 libgbm1"
+	  "apt install -y libgbm1"
+        )
+	desktop_packages=(
+          "apt-get update"
+	  "apt-get install -y default-jre ksh xterm libglu1-mesa csh xvfb libnsl2 libaprutil1 libc6-dev libxss1"
         )
         ;;
       ubuntu24)
