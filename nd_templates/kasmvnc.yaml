@@ -27,6 +27,9 @@ binaries:
         if [ -z "$VNC_DE" ]; then
           VNC_DE="xfce";
         fi
+        if [ -z "$VNC_DISPLAY" ]; then
+          VNC_DISPLAY="1";
+        fi
         if [ -z "$VNC_RESOLUTION" ]; then
           VNC_RESOLUTION="1920x1080";
         fi
@@ -40,7 +43,7 @@ binaries:
           XSTARTUP="{{ '/usr/bin/xfce4-session' if self.pkg_manager == 'yum' else '/etc/X11/Xsession' }}";
         fi
         export $(dbus-launch)
-        /usr/bin/vncserver -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" -disableBasicAuth $XVNC_OPTIONS
+        /usr/bin/vncserver :"$VNC_DISPLAY" -fg -autokill -select-de "$VNC_DE" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -xstartup "$XSTARTUP" -disableBasicAuth $XVNC_OPTIONS
         exit 0
       but_can_it_run_doom: "NO"
       single_app: "NO"
